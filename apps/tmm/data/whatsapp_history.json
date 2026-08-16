@@ -1,0 +1,154 @@
+[
+  {
+    "id": "msg-init-1",
+    "sender": "bot",
+    "text": "👋 Merhaba! TerraceFeri TMM WhatsApp Botuna hoş geldiniz. Numaradan (05305631781) ses kaydı atabilir veya sayaç, arıza ve tüm yönetim komutlarını buraya yazabilirsiniz.",
+    "time": "10:00",
+    "date": "Bugün",
+    "timestamp": 1786711710972
+  },
+  {
+    "id": "msg-u-1786715382515",
+    "sender": "user",
+    "text": "günlük rutin işleri bekliyor yap",
+    "time": "16:49",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715382515
+  },
+  {
+    "id": "msg-b-1786715383019",
+    "sender": "bot",
+    "text": "✅ Bugünkü tüm günlük rutin görevler zaten tamamlanmış durumda!",
+    "time": "16:49",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715383019
+  },
+  {
+    "id": "msg-u-1786715494173",
+    "sender": "user",
+    "text": "günlük rutin işleri bekliyor yap",
+    "time": "16:51",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715494173
+  },
+  {
+    "id": "msg-b-1786715494627",
+    "sender": "bot",
+    "text": "✅ Bugünkü tüm günlük rutin görevler zaten tamamlanmış durumda!",
+    "time": "16:51",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715494627
+  },
+  {
+    "id": "msg-u-1786715677898",
+    "sender": "user",
+    "text": "Günlük rutin işleri bekliyor yap",
+    "time": "16:54",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715677898
+  },
+  {
+    "id": "msg-b-1786715679646",
+    "sender": "bot",
+    "text": "✅ Bugünkü **82 adet günlük rutin işlem** başarıyla \"Bekliyor\" olarak güncellendi!\n(havuz dairesi kontol edildi, elektrik odası kontol edildi, su Dükkan  değerleri okundu ve 79 diğer işlem)",
+    "time": "16:54",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715679647
+  },
+  {
+    "id": "msg-u-1786715724490",
+    "sender": "user",
+    "text": "Günlük rutin işleri bekliyor yap",
+    "time": "16:55",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715724490
+  },
+  {
+    "id": "msg-b-1786715724946",
+    "sender": "bot",
+    "text": "✅ Bugünkü tüm günlük rutin görevler zaten \"Bekliyor\" durumunda!",
+    "time": "16:55",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786715724947
+  },
+  {
+    "id": "msg-u-1786716930292",
+    "sender": "user",
+    "text": "Günlük rutin işleri Tamam yap",
+    "time": "17:15",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786716930292
+  },
+  {
+    "id": "msg-b-1786716930993",
+    "sender": "bot",
+    "text": "✅ Bugünkü **9 adet günlük rutin işlem** başarıyla \"Tamamlandı\" olarak güncellendi!\n(Kazan Dairesi Kontrol Edildi, Su Dükkan Değerleri Okundu, Elektrik Odası Kontrol Edildi ve 6 diğer işlem)",
+    "time": "17:15",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786716930993
+  },
+  {
+    "id": "msg-u-1786717378944",
+    "sender": "user",
+    "text": "Günlük rutin işleri bekliyor yap",
+    "time": "17:22",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786717378944
+  },
+  {
+    "id": "msg-b-1786717379600",
+    "sender": "bot",
+    "text": "✅ Bugünkü **9 adet günlük rutin işlem** başarıyla \"Bekliyor\" olarak güncellendi!\n(Elektrik Odası Kontrol Edildi, Su Dükkan Değerleri Okundu, Kazan Dairesi Kontrol Edildi ve 6 diğer işlem)",
+    "time": "17:22",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786717379600
+  },
+  {
+    "id": "msg-u-1786717619480",
+    "sender": "user",
+    "text": "Günlük rutin işleri Tamam yap",
+    "time": "17:26",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786717619480
+  },
+  {
+    "id": "msg-b-1786717620105",
+    "sender": "bot",
+    "text": "✅ Bugünkü **9 adet Günlük Rutin işlemi** başarıyla \"Tamamlandı\" olarak güncellendi!\n(Su Dükkan Değerleri Okundu, Doğalgaz Değeri Okundu, Su Daireler Değerleri Okundu ve 6 diğer işlem)",
+    "time": "17:27",
+    "date": "14 Ağustos 2026",
+    "timestamp": 1786717620105
+  },
+  {
+    "id": "msg-u-1786777652806",
+    "sender": "user",
+    "text": "merhaba",
+    "time": "10:07",
+    "date": "15 Ağustos 2026",
+    "timestamp": 1786777652806
+  },
+  {
+    "id": "msg-b-1786777653221",
+    "sender": "bot",
+    "text": "✅ Komutunuz yapay zeka tarafından işlendi ve uygulandı: \"merhaba\"",
+    "time": "10:07",
+    "date": "15 Ağustos 2026",
+    "timestamp": 1786777653221
+  },
+  {
+    "id": "msg-u-1786777690679",
+    "sender": "user",
+    "text": "Elektrik 26945 gaz 2592500 su daire 82140 dükkan 203",
+    "time": "10:08",
+    "date": "15 Ağustos 2026",
+    "timestamp": 1786777690679
+  },
+  {
+    "id": "msg-b-1786777691281",
+    "sender": "bot",
+    "text": "✅ 2026-08-15 tarihli sayaç endeksleri kaydedildi:\nElektrik: 26945 | Doğalgaz: 2592500 | Su Daire: 82140 | Su Dükkan: 203",
+    "time": "10:08",
+    "date": "15 Ağustos 2026",
+    "timestamp": 1786777691282
+  }
+]

@@ -1,0 +1,135 @@
+'use client';
+
+import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase } from 'lucide-react';
+import Link from 'next/link';
+
+export default function SettingsPage() {
+  const modules = [
+    {
+      id: 'core',
+      name: 'TMM Core (Çekirdek)',
+      description: 'Temel kullanıcı, oturum ve rol yönetimi',
+      status: 'active',
+      icon: Server,
+      db: 'terraceferi_core',
+      version: '1.0.0'
+    },
+    {
+      id: 'area',
+      name: 'Alan Yönetimi (AreaDB)',
+      description: 'Tesis, blok, kat ve bağımsız bölüm hiyerarşisi',
+      status: 'active',
+      icon: Map,
+      db: 'terraceferi_area',
+      version: '1.0.0'
+    },
+    {
+      id: 'equipment',
+      name: 'Ekipman Yönetimi (EquipmentDB)',
+      description: 'Sitedeki tüm demirbaş ve cihazların envanteri',
+      status: 'active',
+      icon: Cpu,
+      db: 'terraceferi_equipment',
+      version: '1.0.0',
+      href: '/admin/equipments'
+    },
+    {
+      id: 'faults',
+      name: 'Arıza & Bakım Modülü',
+      description: 'Sistem üzerindeki arıza kayıtları ve bakım planları',
+      status: 'active',
+      icon: Wrench,
+      db: 'terraceferi_faults',
+      version: '1.0.0',
+      href: '/admin/faults'
+    },
+    {
+      id: 'companies',
+      name: 'Servis Firmaları Modülü (CompanyDB)',
+      description: 'Dışarıdan gelen servis firmalarının kaydı',
+      status: 'active',
+      icon: Briefcase,
+      db: 'terraceferi_company',
+      version: '1.0.0',
+      href: '/admin/settings/companies'
+    },
+    {
+      id: 'meters',
+      name: 'Sayaç Yönetimi',
+      description: 'Elektrik, su, doğalgaz sayaç okumaları ve tüketim takibi',
+      status: 'active',
+      icon: Zap,
+      db: 'terraceferi_meters',
+      version: '1.0.0',
+      href: '/admin/meters'
+    }
+  ];
+
+  return (
+    <div className="space-y-8 max-w-5xl">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Sistem Ayarları & Modüller</h2>
+        <p className="text-slate-400 text-sm">Sisteme entegre edilmiş aktif ve pasif modüllerin yönetimi</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {modules.map(mod => (
+          <div 
+            key={mod.id} 
+            className={`p-6 rounded-3xl shadow-lg relative overflow-hidden transition-all duration-300 ${
+              mod.status === 'active' 
+                ? 'glass-card !border-blue-500/20 hover:!border-blue-500/40' 
+                : 'glass-card opacity-70 grayscale'
+            }`}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <div className={`p-3 rounded-2xl ${
+                  mod.status === 'active' ? 'bg-blue-500/10 text-blue-400' : 'bg-slate-800 text-slate-500'
+                }`}>
+                  <mod.icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-lg">{mod.name}</h3>
+                  <div className="flex items-center text-xs text-slate-400 mt-1 space-x-3">
+                    <span className="flex items-center"><Database className="w-3 h-3 mr-1" /> {mod.db}</span>
+                    <span className="flex items-center"><Activity className="w-3 h-3 mr-1" /> v{mod.version}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {mod.status === 'active' ? (
+                <span className="flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-xs font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> AKTİF
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-md text-xs font-semibold">
+                  KURULMADI
+                </span>
+              )}
+            </div>
+
+            <p className="text-slate-400 text-sm mt-4">
+              {mod.description}
+            </p>
+
+            {mod.status === 'active' && (
+              <div className="mt-5 pt-5 border-t glass-divider flex justify-end">
+                {mod.href ? (
+                  <Link href={mod.href} className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
+                    Yapılandır
+                  </Link>
+                ) : (
+                  <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
+                    Yapılandır
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

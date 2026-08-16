@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+:root {
+  --background: #060B14;
+  --foreground: #e2e8f0;
+
+  /* Glassmorphism Design Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-strong: rgba(255, 255, 255, 0.18);
+  --glass-blur: 20px;
+  --glass-blur-light: 12px;
+  --glass-radius: 20px;
+  --glass-radius-sm: 14px;
+  --glass-glow: rgba(255, 255, 255, 0.15);
+  --glass-shadow: rgba(0, 0, 0, 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   GLASSMORPHISM DESIGN SYSTEM
+   ═══════════════════════════════════════════════ */
+
+/* Ana cam panel — Sidebar ve Header için */
+.glass-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.03)
+  );
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow:
+    0 8px 32px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-glow);
+}
+
+/* İkinci seviye cam kart — Dashboard kartları için */
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius-sm);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0.04)
+  );
+  border-color: var(--glass-border-strong);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Üçüncü seviye — Input, buton container gibi küçük elemanlar */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-surface:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Aktif menü item glass efekti */
+.glass-active {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15),
+    rgba(59, 130, 246, 0.05)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(59, 130, 246, 0.15);
+}
+
+/* Glass input — arama kutuları, form alanları */
+.glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════════
+   ARKA PLAN IŞIK EFEKTLERİ (Ambient Lights)
+   Glassmorphism'in güzel görünmesinin %50'si bu
+   ═══════════════════════════════════════════════ */
+.glass-ambient-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-ambient-bg::before,
+.glass-ambient-bg::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 20s ease-in-out infinite;
+}
+
+/* Turuncu/amber ışık — sol alt */
+.glass-ambient-bg::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(249, 115, 22, 0.18),
+    transparent 70%
+  );
+  left: -5%;
+  bottom: -10%;
+  animation-delay: 0s;
+}
+
+/* Mavi ışık — sağ üst */
+.glass-ambient-bg::after {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.12),
+    transparent 70%
+  );
+  right: 5%;
+  top: -5%;
+  animation-delay: -10s;
+}
+
+/* Hafif hareket animasyonu */
+@keyframes ambientFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-20px, 30px) scale(0.95);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translate(15px, 15px) scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   GLASS BORDER GLOW — Altın/Amber accent
+   ═══════════════════════════════════════════════ */
+.glass-glow-amber {
+  position: relative;
+}
+
+.glass-glow-amber::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(197, 165, 91, 0.3),
+    transparent 40%,
+    transparent 60%,
+    rgba(197, 165, 91, 0.15)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════
+   GLASS DIVIDER — Border yerine glass separator
+   ═══════════════════════════════════════════════ */
+.glass-divider {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLLBAR (korundu)
+   ═══════════════════════════════════════════════ */
+
+/* Custom Thin Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+/* Hide Next.js Dev Indicator Overlay Badge */
+[nextjs-portal],
+#next-route-announcer,
+div[data-nextjs-toast],
+next-route-announcer {
+  display: none !important;
+}

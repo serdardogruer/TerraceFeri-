@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma-clients/fault"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("FAULT_DATABASE_URL")
+}
+
+model FaultRecord {
+  id                String   @id @default(uuid())
+  equipmentId       String?  // EquipmentDB'deki Equipment ID (Soft link)
+  companyId         String?  // CompanyDB'deki Company ID (Soft link)
+  
+  title             String
+  description       String?
+  reporterName      String?
+  
+  faultDate         DateTime @default(now())
+  priority          String   @default("Normal") // Düşük, Normal, Yüksek, Acil
+  status            String   @default("Pending") // Bekliyor, İşlemde, Tamamlandı
+  
+  serviceReport     String?  // Servis Tutanağı metni veya sonucu
+  recordType        String   @default("ARIZA") // "ARIZA" veya "RUTIN_GOREV"
+  pendingReason     String?  // Bekleme açıklaması
+  resolutionNote    String?  // Yapıldı ise açıklaması
+  
+  // Tekrarlayan Şablon Sistemi
+  isRecurringTemplate Boolean  @default(false) // Bu kayıt bir günlük rutin şablonu mu?
+  templateId          String?                   // Hangi şablondan oluşturuldu (kopya kayıtlar için)
+
+  // Rapor Seçenekleri
+  isDailyReport     Boolean  @default(false)
+  isMonthlyReport   Boolean  @default(false)
+  isManagerView     Boolean  @default(true)
+  isHidden          Boolean  @default(false)
+  reportFields      String?  @default("[\"title\",\"description\"]")
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+}

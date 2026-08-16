@@ -1,0 +1,19 @@
+{
+  "entry": [
+    "apps/tmm/src/app/**/page.tsx",
+    "apps/tmm/src/app/**/layout.tsx",
+    "apps/tmm/src/app/**/route.ts",
+    "apps/tmm/src/app/**/template.tsx",
+    "apps/tmm/src/app/**/loading.tsx",
+    "apps/tmm/src/app/**/error.tsx",
+    "apps/tmm/src/app/**/not-found.tsx",
+    "apps/tmm/next.config.ts",
+    "apps/tmm/src/proxy.ts",
+    "apps/tmm/check-api.ts",
+    "apps/tmm/seed-*.ts"
+  ],
+  "ignore": [
+    "apps/tmm/modules/**/*.prisma",
+    "**/*.d.ts"
+  ]
+}

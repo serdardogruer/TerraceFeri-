@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="tfGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="goldGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#tfGrad192)" />
+  <g transform="translate(24, 24)">
+    <text x="72" y="90" font-family="'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="54" fill="#ffffff" text-anchor="middle" letter-spacing="-2">TF</text>
+    <polygon points="72,16 77,28 90,28 80,36 84,48 72,40 60,48 64,36 54,28 67,28" fill="url(#goldGrad192)" />
+    <text x="72" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="12" fill="#94a3b8" text-anchor="middle" letter-spacing="2">TERRACEFERİ</text>
+  </g>
+</svg>

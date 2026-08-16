@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma-clients/equipment"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("EQUIPMENT_DATABASE_URL")
+}
+
+model Equipment {
+  id                String   @id @default(uuid())
+  areaId            String?  // Alan Yönetimi (AreaDB) ile Soft Link - İsteğe bağlı
+  name              String
+  code              String?
+  type              String   @default("General")
+  
+  // Teknik ve Pratik Bilgiler
+  technicalDetails  String?
+  workingPrinciple  String?
+  duty              String?
+  usageInfo         String?
+  practicalInfo     String?
+  possibleFaults    String?
+
+  qrCode            String?
+
+  // Rapor Seçenekleri
+  isDailyReport     Boolean  @default(false)
+  isMonthlyReport   Boolean  @default(false)
+  isManagerView     Boolean  @default(true)
+  isHidden          Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+}

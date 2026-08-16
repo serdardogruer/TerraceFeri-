@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma-clients/personnel"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PERSONNEL_DATABASE_URL")
+}
+
+model Personnel {
+  id             String    @id @default(uuid())
+  firstName      String
+  lastName       String
+  phone          String    @unique
+  tcNo           String?   @unique
+  shiftStartTime String    // e.g. "08:00"
+  shiftEndTime   String    // e.g. "17:00"
+  status         PersonnelStatus @default(ACTIVE)
+  
+  devices        PersonnelDevice[]
+  timesheets     TimesheetLog[]
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+}
+
+model PersonnelDevice {
+  id          String    @id @default(uuid())
+  personnelId String
+  deviceId    String    @unique // This will be the value stored in the cookie
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+  
+  personnel   Personnel @relation(fields: [personnelId], references: [id])
+}
+
+model TimesheetLog {
+  id          String    @id @default(uuid())
+  personnelId String
+  type        ScanType
+  scanTime    DateTime  @default(now())
+  latitude    Float?
+  longitude   Float?
+  ipAddress   String?
+  locationId  String?   // To identify which site QR was scanned
+  
+  personnel   Personnel @relation(fields: [personnelId], references: [id])
+}
+
+enum PersonnelStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ScanType {
+  ENTRY
+  EXIT
+}
+
+model LocationSetting {
+  id                  String   @id @default(uuid())
+  locationId          String   @unique // Örn: "santiye-merkez"
+  name                String   // Örn: "Merkez Şantiye"
+  latitude            Float
+  longitude           Float
+  allowedRadiusMeters Int      @default(100) // 100 metre varsayılan
+  allowedIps          String[] // Sabit IP adresleri ["192.168.1.1"]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+

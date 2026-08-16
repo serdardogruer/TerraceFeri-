@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma-clients/area"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AREA_DATABASE_URL")
+}
+
+model Area {
+  id        String   @id @default(uuid())
+  parentId  String?
+  name      String
+  type      String   @default("General")
+  qrCode    String?
+  notes           String?
+  sortOrder       Int      @default(0)
+  
+  // Rapor Seçenekleri
+  isDailyReport   Boolean  @default(false)
+  isMonthlyReport Boolean  @default(false)
+  isManagerView   Boolean  @default(true)
+  isHidden        Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  parent          Area?    @relation("AreaParent", fields: [parentId], references: [id])
+  children        Area[]   @relation("AreaParent")
+}

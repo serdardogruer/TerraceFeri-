@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@prisma-clients/company"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("COMPANY_DATABASE_URL")
+}
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  serviceType       String?  // Hizmet Türü
+  specialty         String?  // Uzmanlık Alanı
+  contactPerson     String?
+  phone             String?
+  email             String?
+  website           String?
+  
+  contractStatus    String?  @default("Active")
+  contractDate      DateTime?
+  contractDuration  Int?     // Aylık olarak sözleşme süresi
+  
+  lastServiceDate   DateTime?
+  nextServiceDate   DateTime?
+  
+  notes             String?
+  
+  // Rapor Seçenekleri
+  isDailyReport     Boolean  @default(false)
+  isMonthlyReport   Boolean  @default(false)
+  isManagerView     Boolean  @default(true)
+  isHidden          Boolean  @default(false)
+  reportFields      String?  @default("[\"name\",\"serviceType\",\"contractStatus\"]")
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+}
