@@ -1,11 +1,27 @@
+export const dynamic = 'force-dynamic';
+
 import { prismaPersonnel } from '../../../../../../modules/personnel/database/client';
 import { Settings, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import SettingsClient from './SettingsClient';
 
+interface LocationSetting {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  allowedRadiusMeters: number;
+  allowedIps: string[];
+}
+
 export default async function PersonnelSettingsPage() {
-  // Veritabanından mevcut ayarları çek (şimdilik ilk bulduğunu getir)
-  const locationSettings = await prismaPersonnel.locationSetting.findMany();
+  let locationSettings: LocationSetting[] = [];
+  try {
+    locationSettings = await prismaPersonnel.locationSetting.findMany();
+  } catch (error) {
+    console.error('LocationSetting çekme hatası:', error);
+    locationSettings = [];
+  }
   
   return (
     <div className="p-6 max-w-4xl mx-auto font-sans">
