@@ -65,7 +65,30 @@ function SortableMenuItem({ item, isActive, isCollapsed }: SortableMenuItemProps
             ? "justify-center p-3 rounded-lg" 
             : "px-4 py-3 space-x-3 rounded-xl text-[13px]",
           isActive 
-            ? "glass-active text-blue-400 font-medium" 
+            ? "glass-active text-blue-400 font-medium border border-blue-500/30 bg-blue-950/30" 
+            : "hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] hover:text-slate-200 text-slate-400"
+        )}
+        title={isCollapsed ? item.name : undefined}
+      >
+        <item.icon className={cn(isCollapsed ? "h-5 w-5" : "h-4 w-4", isActive ? "text-blue-400" : "text-slate-500")} />
+        {!isCollapsed && <span>{item.name}</span>}
+      </Link>
+    </div>
+  );
+}
+
+function StaticMenuItem({ item, isActive, isCollapsed }: { item: MenuItem; isActive: boolean; isCollapsed: boolean }) {
+  return (
+    <div className="flex items-center group relative z-10">
+      <Link
+        href={item.href}
+        className={cn(
+          "flex items-center w-full transition-all duration-300 relative",
+          isCollapsed 
+            ? "justify-center p-3 rounded-lg" 
+            : "px-4 py-3 space-x-3 rounded-xl text-[13px]",
+          isActive 
+            ? "glass-active text-blue-400 font-medium border border-blue-500/30 bg-blue-950/30" 
             : "hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] hover:text-slate-200 text-slate-400"
         )}
         title={isCollapsed ? item.name : undefined}
@@ -81,36 +104,38 @@ export function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [menus, setMenus] = useState<MenuItem[]>(defaultMenus);
-  const [isMounted, setIsMounted] = useState(false);
-  const [isSettingsHovered, setIsSettingsHovered] = useState(false);
-  const [isUserHovered, setIsUserHovered] = useState(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [isSettingsHovered, setIsSettingsHovered] = useState<boolean>(false);
+  const [isUserHovered, setIsUserHovered] = useState<boolean>(false);
 
   const isSettingsRouteActive = pathname.startsWith('/admin/settings') || pathname === '/admin/users' || pathname === '/admin/personnel';
   const showSettingsSub = isSettingsHovered || isSettingsRouteActive;
 
   useEffect(() => {
     setIsMounted(true);
-    const savedCollapsed = localStorage.getItem('sidebar_collapsed');
-    if (savedCollapsed === 'true') setIsCollapsed(true);
+    try {
+      const savedCollapsed = localStorage.getItem('sidebar_collapsed');
+      if (savedCollapsed === 'true') setIsCollapsed(true);
 
-    const savedMenus = localStorage.getItem('sidebar_menus');
-    if (savedMenus) {
-      try {
+      const savedMenus = localStorage.getItem('sidebar_menus');
+      if (savedMenus) {
         const parsedIds: string[] = JSON.parse(savedMenus);
         const reordered = parsedIds.map((id: string) => defaultMenus.find(m => m.id === id)).filter(Boolean) as MenuItem[];
         if (reordered.length === defaultMenus.length) {
           setMenus(reordered);
         }
-      } catch {
-        setMenus(defaultMenus);
       }
+    } catch {
+      // LocalStorage hatası olursa varsayılan menüleri koru
     }
   }, []);
 
   const toggleCollapse = () => {
     const newVal = !isCollapsed;
     setIsCollapsed(newVal);
-    localStorage.setItem('sidebar_collapsed', newVal.toString());
+    try {
+      localStorage.setItem('sidebar_collapsed', newVal.toString());
+    } catch {}
   };
 
   const sensors = useSensors(
@@ -125,35 +150,32 @@ export function Sidebar() {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem('sidebar_menus', JSON.stringify(newItems.map(i => i.id)));
+        try {
+          localStorage.setItem('sidebar_menus', JSON.stringify(newItems.map(i => i.id)));
+        } catch {}
         return newItems;
       });
     }
   };
 
-  if (!isMounted) {
-    return (
-      <aside className="w-72 glass-panel min-h-screen hidden lg:block" />
-    );
-  }
-
   return (
     <aside className={cn(
-      "glass-panel text-slate-400 min-h-screen flex flex-col transition-all duration-300 relative z-20",
+      "glass-panel bg-[#060B14]/90 border-r border-slate-800/80 text-slate-400 min-h-screen flex flex-col transition-all duration-300 relative z-20 shrink-0",
       isCollapsed ? "w-20" : "w-72"
     )}>
       {/* Collapse Toggle */}
       <button 
         onClick={toggleCollapse}
-        className="absolute -right-3 top-8 glass-surface rounded-full p-1.5 text-slate-400 hover:text-white z-50 transition-all duration-200 cursor-pointer"
+        className="absolute -right-3 top-8 glass-surface bg-slate-900 border border-slate-700 rounded-full p-1.5 text-slate-400 hover:text-white z-50 transition-all duration-200 cursor-pointer shadow-md"
+        aria-label="Menüyü daralt/genişlet"
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
 
       {/* Logo Area */}
-      <div className={cn("h-24 flex items-center border-b glass-divider", isCollapsed ? "justify-center px-0" : "px-6")}>
+      <div className={cn("h-24 flex items-center border-b border-slate-800/80 glass-divider", isCollapsed ? "justify-center px-0" : "px-6")}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg glass-surface flex items-center justify-center shrink-0 glass-glow-amber">
+          <div className="w-10 h-10 rounded-lg glass-surface bg-slate-900/80 border border-amber-500/20 flex items-center justify-center shrink-0 glass-glow-amber">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-[22px] h-[22px] text-[#C5A55B]">
               <rect x="9.5" y="7" width="5" height="2.5" />
               <rect x="6.5" y="11.5" width="11" height="2.5" />
@@ -175,15 +197,23 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-6 overflow-y-auto space-y-1">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={menus} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1">
-              {menus.map((item) => (
-                <SortableMenuItem key={item.id} item={item} isActive={pathname === item.href} isCollapsed={isCollapsed} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        {isMounted ? (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={menus} strategy={verticalListSortingStrategy}>
+              <div className="space-y-1">
+                {menus.map((item) => (
+                  <SortableMenuItem key={item.id} item={item} isActive={pathname === item.href} isCollapsed={isCollapsed} />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="space-y-1">
+            {menus.map((item) => (
+              <StaticMenuItem key={item.id} item={item} isActive={pathname === item.href} isCollapsed={isCollapsed} />
+            ))}
+          </div>
+        )}
 
         {/* Genel Ayarlar & Mouse Hover Submenu */}
         <div 
@@ -197,7 +227,7 @@ export function Sidebar() {
               "flex items-center w-full transition-all duration-300 relative",
               isCollapsed ? "justify-center p-3 rounded-lg" : "px-4 py-3 space-x-3 rounded-xl text-[13px]",
               isSettingsRouteActive 
-                ? "glass-active text-blue-400 font-medium" 
+                ? "glass-active text-blue-400 font-medium border border-blue-500/30 bg-blue-950/30" 
                 : "hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] hover:text-slate-200 text-slate-400"
             )}
             title={isCollapsed ? "Genel Ayarlar" : undefined}
@@ -223,7 +253,7 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center w-full px-3 py-2 space-x-2.5 rounded-lg text-[12px] transition-colors",
                       isSubActive
-                        ? "glass-active text-blue-400 font-medium"
+                        ? "glass-active text-blue-400 font-medium border border-blue-500/30 bg-blue-950/30"
                         : "hover:bg-white/[0.06] text-slate-400 hover:text-slate-200"
                     )}
                   >
@@ -273,7 +303,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Sidebar Footer: Notifications & User Profile */}
-      <div className={cn("p-4 border-t glass-divider flex items-center justify-between", isCollapsed && "flex-col gap-3 py-4 px-2")}>
+      <div className={cn("p-4 border-t border-slate-800/80 glass-divider flex items-center justify-between", isCollapsed && "flex-col gap-3 py-4 px-2")}>
         {/* User Avatar & Info (Hover Popover) */}
         <div 
           className="relative"
@@ -306,11 +336,11 @@ export function Sidebar() {
 
         {/* Notification Bell Button */}
         <button 
-          className="relative p-2 glass-surface hover:bg-white/[0.08] rounded-xl transition-all text-slate-400 hover:text-slate-200"
+          className="relative p-2 glass-surface bg-slate-900/80 border border-slate-800 hover:bg-white/[0.08] rounded-xl transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
           title="Bildirimler"
         >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-blue-500 ring-2 ring-[#060B14]/50" />
+          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-blue-500 ring-2 ring-[#060B14]" />
         </button>
       </div>
     </aside>
