@@ -10,7 +10,7 @@
     "start:next": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint",
     "postinstall": "npm run prisma:generate",
-    "prisma:generate": "prisma generate --schema=modules/core/database/schema.prisma && prisma generate --schema=modules/area/database/schema.prisma && prisma generate --schema=modules/apartment/database/schema.prisma && prisma generate --schema=modules/company/database/schema.prisma && prisma generate --schema=modules/equipment/database/schema.prisma && prisma generate --schema=modules/fault/database/schema.prisma && prisma generate --schema=modules/personnel/database/schema.prisma",
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
     "db:generate": "npm run prisma:generate",
     "db:push": "node scripts/db-push-all.js",
     "db:seed": "node scripts/seed-admin.js",

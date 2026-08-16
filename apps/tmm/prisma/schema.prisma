@@ -1,0 +1,287 @@
+// TerraceFeri - Unified Prisma Schema
+// Contains all 7 modules for reliable PostgreSQL multi-table management without table drops.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator coreClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/core"
+}
+
+generator areaClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/area"
+}
+
+generator apartmentClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/apartment"
+}
+
+generator companyClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/company"
+}
+
+generator equipmentClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/equipment"
+}
+
+generator faultClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/fault"
+}
+
+generator personnelClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/personnel"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. CORE MODULE
+// ==========================================
+model User {
+  id          String     @id @default(uuid())
+  name        String
+  email       String     @unique
+  password    String
+  role        Role
+  status      UserStatus @default(ACTIVE)
+  lastLogin   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+}
+
+enum Role {
+  ADMIN
+  RESIDENT
+  TECHNICAL
+  CLEANING
+  SECURITY
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// ==========================================
+// 2. AREA MODULE
+// ==========================================
+model Area {
+  id              String    @id @default(uuid())
+  parentId        String?
+  name            String
+  type            String    @default("General")
+  qrCode          String?
+  notes           String?
+  sortOrder       Int       @default(0)
+  
+  isDailyReport   Boolean   @default(false)
+  isMonthlyReport Boolean   @default(false)
+  isManagerView   Boolean   @default(true)
+  isHidden        Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  parent          Area?     @relation("AreaParent", fields: [parentId], references: [id])
+  children        Area[]    @relation("AreaParent")
+}
+
+// ==========================================
+// 3. APARTMENT MODULE
+// ==========================================
+model Apartment {
+  id            String    @id @default(uuid())
+  block         String
+  unit          String
+  shortCode     String
+  residentName  String
+  status        String
+  floor         String
+  type          String
+  
+  phone         String?
+  plate1        String?
+  plate2        String?
+  plate3        String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+}
+
+// ==========================================
+// 4. COMPANY MODULE
+// ==========================================
+model Company {
+  id                String    @id @default(uuid())
+  name              String
+  serviceType       String?
+  specialty         String?
+  contactPerson     String?
+  phone             String?
+  email             String?
+  website           String?
+  
+  contractStatus    String?   @default("Active")
+  contractDate      DateTime?
+  contractDuration  Int?
+  
+  lastServiceDate   DateTime?
+  nextServiceDate   DateTime?
+  
+  notes             String?
+  
+  isDailyReport     Boolean   @default(false)
+  isMonthlyReport   Boolean   @default(false)
+  isManagerView     Boolean   @default(true)
+  isHidden          Boolean   @default(false)
+  reportFields      String?   @default("[\"name\",\"serviceType\",\"contractStatus\"]")
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+}
+
+// ==========================================
+// 5. EQUIPMENT MODULE
+// ==========================================
+model Equipment {
+  id                String   @id @default(uuid())
+  areaId            String?
+  name              String
+  code              String?
+  type              String   @default("General")
+  
+  technicalDetails  String?
+  workingPrinciple  String?
+  duty              String?
+  usageInfo         String?
+  practicalInfo     String?
+  possibleFaults    String?
+
+  qrCode            String?
+
+  isDailyReport     Boolean  @default(false)
+  isMonthlyReport   Boolean  @default(false)
+  isManagerView     Boolean  @default(true)
+  isHidden          Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+}
+
+// ==========================================
+// 6. FAULT MODULE
+// ==========================================
+model FaultRecord {
+  id                  String    @id @default(uuid())
+  equipmentId         String?
+  companyId           String?
+  
+  title               String
+  description         String?
+  reporterName        String?
+  
+  faultDate           DateTime  @default(now())
+  priority            String    @default("Normal")
+  status              String    @default("Pending")
+  
+  serviceReport       String?
+  recordType          String    @default("ARIZA")
+  pendingReason       String?
+  resolutionNote      String?
+  
+  isRecurringTemplate Boolean   @default(false)
+  templateId          String?
+
+  isDailyReport       Boolean   @default(false)
+  isMonthlyReport     Boolean   @default(false)
+  isManagerView       Boolean   @default(true)
+  isHidden            Boolean   @default(false)
+  reportFields        String?   @default("[\"title\",\"description\"]")
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+}
+
+// ==========================================
+// 7. PERSONNEL MODULE
+// ==========================================
+model Personnel {
+  id             String            @id @default(uuid())
+  firstName      String
+  lastName       String
+  phone          String            @unique
+  tcNo           String?           @unique
+  shiftStartTime String
+  shiftEndTime   String
+  status         PersonnelStatus   @default(ACTIVE)
+  
+  devices        PersonnelDevice[]
+  timesheets     TimesheetLog[]
+  
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+}
+
+model PersonnelDevice {
+  id          String    @id @default(uuid())
+  personnelId String
+  deviceId    String    @unique
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+  
+  personnel   Personnel @relation(fields: [personnelId], references: [id])
+}
+
+model TimesheetLog {
+  id          String    @id @default(uuid())
+  personnelId String
+  type        ScanType
+  scanTime    DateTime  @default(now())
+  latitude    Float?
+  longitude   Float?
+  ipAddress   String?
+  locationId  String?
+  
+  personnel   Personnel @relation(fields: [personnelId], references: [id])
+}
+
+enum PersonnelStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ScanType {
+  ENTRY
+  EXIT
+}
+
+model LocationSetting {
+  id                  String   @id @default(uuid())
+  locationId          String   @unique
+  name                String
+  latitude            Float
+  longitude           Float
+  allowedRadiusMeters Int      @default(100)
+  allowedIps          String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
