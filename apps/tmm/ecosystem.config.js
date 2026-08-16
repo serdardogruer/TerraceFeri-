@@ -11,7 +11,9 @@ module.exports = {
   apps: [
     {
       name: 'terraceferi-web',
-      script: 'scripts/start-server.js',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start -H 0.0.0.0 -p 3000',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -31,10 +33,11 @@ module.exports = {
         HOSTNAME: '0.0.0.0',
       },
     },
-    // İsteğe bağlı: WhatsApp AI Bot Arka Plan Servisi
+    // WhatsApp AI Bot Arka Plan Servisi
     {
       name: 'terraceferi-whatsapp-bot',
       script: 'scripts/whatsapp-bot-server.js',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,

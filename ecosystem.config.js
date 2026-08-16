@@ -1,13 +1,15 @@
 /**
- * TerraceFeri - Root PM2 Production Ecosystem Configuration
+ * TerraceFeri - PM2 Production Ecosystem Configuration (Root)
  */
 
 module.exports = {
   apps: [
     {
       name: 'terraceferi-web',
-      script: 'scripts/start-server.js',
       cwd: './apps/tmm',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start -H 0.0.0.0 -p 3000',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -29,8 +31,9 @@ module.exports = {
     },
     {
       name: 'terraceferi-whatsapp-bot',
-      script: 'scripts/whatsapp-bot-server.js',
       cwd: './apps/tmm',
+      script: 'scripts/whatsapp-bot-server.js',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,
