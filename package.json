@@ -1,0 +1,14 @@
+{
+  "name": "terraceferi-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix apps/tmm run dev",
+    "build": "npm --prefix apps/tmm run build",
+    "start": "npm --prefix apps/tmm run start",
+    "start:next": "npm --prefix apps/tmm run start:next",
+    "db:push": "npm --prefix apps/tmm run db:push",
+    "db:seed": "npm --prefix apps/tmm run db:seed",
+    "prisma:generate": "npm --prefix apps/tmm run prisma:generate"
+  }
+}
