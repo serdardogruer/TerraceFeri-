@@ -31,6 +31,146 @@
   ],
   "readings": [
     {
+      "id": "r-2026-08-17-m-su-daire",
+      "meterId": "m-su-daire",
+      "meterNo": "SU-DAIRE-01",
+      "type": "Su",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-17",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 0,
+      "prevValue": 82142,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-15-m-su-dukkan",
+      "meterId": "m-su-dukkan",
+      "meterNo": "SU-DUKKAN-01",
+      "type": "Su",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-15",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 204,
+      "prevValue": 202,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-15-m-su-daire",
+      "meterId": "m-su-daire",
+      "meterNo": "SU-DAIRE-01",
+      "type": "Su",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-15",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 82142,
+      "prevValue": 81910,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-15-m-gas-main",
+      "meterId": "m-gas-main",
+      "meterNo": "GAS-ANA-01",
+      "type": "Doğalgaz",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-15",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 2592514,
+      "prevValue": 2588823,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-15-m-elek-main",
+      "meterId": "m-elek-main",
+      "meterNo": "ELEK-ANA-01",
+      "type": "Elektrik",
+      "location": "",
+      "unit": "kWh",
+      "readDate": "2026-08-15",
+      "readTime": "10:00",
+      "aktif": 26936,
+      "prevAktif": 26880,
+      "reaktif": 4119,
+      "prevReaktif": 4118,
+      "kapasitif": 241,
+      "prevKapasitif": 239,
+      "value": 26936,
+      "prevValue": 26880,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-18-m-su-dukkan",
+      "meterId": "m-su-dukkan",
+      "meterNo": "SU-DUKKAN-01",
+      "type": "Su",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-18",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 0,
+      "prevValue": 202,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
+      "id": "r-2026-08-16-m-su-daire",
+      "meterId": "m-su-daire",
+      "meterNo": "SU-DAIRE-01",
+      "type": "Su",
+      "location": "",
+      "unit": "m³",
+      "readDate": "2026-08-16",
+      "readTime": "10:00",
+      "aktif": 0,
+      "prevAktif": 0,
+      "reaktif": 0,
+      "prevReaktif": 0,
+      "kapasitif": 0,
+      "prevKapasitif": 0,
+      "value": 0,
+      "prevValue": 81910,
+      "status": "Normal",
+      "notes": "Hızlı hücre girişi"
+    },
+    {
       "id": "r-2026-08-02-m-su-dukkan",
       "meterId": "m-su-dukkan",
       "meterNo": "SU-DUKKAN-01",
@@ -104,7 +244,7 @@
       "value": 26880,
       "prevValue": 26876,
       "status": "Otomatik",
-      "notes": "Pazar otomatik tahmin"
+      "notes": "Hızlı hücre girişi"
     },
     {
       "id": "r-2026-08-13-m-su-daire",
@@ -1873,7 +2013,7 @@
       "value": 26884,
       "prevValue": 26876,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi"
     },
     {
       "id": "r-2026-08-03-gas",
@@ -2025,7 +2165,7 @@
       "value": 26894,
       "prevValue": 26889,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi"
     },
     {
       "id": "r-2026-08-05-gas",
@@ -2101,7 +2241,7 @@
       "value": 26898,
       "prevValue": 26894,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi"
     },
     {
       "id": "r-2026-08-06-gas",
@@ -2462,7 +2602,7 @@
       "value": 203,
       "prevValue": 203,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi"
     },
     {
       "id": "r-2026-08-12-elek",
@@ -2612,9 +2752,10 @@
       "kapasitif": 0,
       "prevKapasitif": 0,
       "value": 2592180,
-      "prevValue": 2591641,
+      "prevValue": 2588823,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi",
+      "location": ""
     },
     {
       "id": "r-2026-08-14-su-daire",
@@ -2631,9 +2772,10 @@
       "kapasitif": 0,
       "prevKapasitif": 0,
       "value": 82125,
-      "prevValue": 82091,
+      "prevValue": 81910,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi",
+      "location": ""
     },
     {
       "id": "r-2026-08-14-su-duk",
@@ -2650,9 +2792,10 @@
       "kapasitif": 0,
       "prevKapasitif": 0,
       "value": 203,
-      "prevValue": 203,
+      "prevValue": 202,
       "status": "Normal",
-      "notes": "GünlükSayaçlar.xlsx dosyasından aktarıldı"
+      "notes": "Hızlı hücre girişi",
+      "location": ""
     },
     {
       "id": "r-2026-08-09-m-elek-main",

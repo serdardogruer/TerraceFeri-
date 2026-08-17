@@ -36,29 +36,60 @@ interface MetersDbData {
   readings: MeterReading[];
 }
 
+function getPossibleDataFilePaths(): string[] {
+  const cwd = process.cwd();
+  return [
+    path.join(cwd, 'data', 'meters_data.json'),
+    path.join(cwd, 'apps', 'tmm', 'data', 'meters_data.json'),
+    path.join(cwd, '..', 'data', 'meters_data.json'),
+    path.join(cwd, '..', 'apps', 'tmm', 'data', 'meters_data.json'),
+  ];
+}
+
 function getDataFilePath(): string {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
+  const paths = getPossibleDataFilePaths();
+  for (const p of paths) {
+    if (fs.existsSync(p)) {
+      return p;
+    }
+  }
+  const defaultDir = path.join(process.cwd(), 'data');
+  if (!fs.existsSync(defaultDir)) {
     try {
-      fs.mkdirSync(dataDir, { recursive: true });
+      fs.mkdirSync(defaultDir, { recursive: true });
     } catch {}
   }
-  return path.join(dataDir, 'meters_data.json');
+  return path.join(defaultDir, 'meters_data.json');
 }
 
 function ensureDataFile(): MetersDbData {
-  const filePath = getDataFilePath();
+  const possiblePaths = getPossibleDataFilePaths();
 
-  if (fs.existsSync(filePath)) {
+  // Try all possible locations and pick the one with data
+  for (const filePath of possiblePaths) {
+    if (fs.existsSync(filePath)) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed.meters) && Array.isArray(parsed.readings) && parsed.readings.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error reading meters_data.json from', filePath, e);
+      }
+    }
+  }
+
+  // Check if primary path exists with at least meters array
+  const primaryPath = getDataFilePath();
+  if (fs.existsSync(primaryPath)) {
     try {
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const content = fs.readFileSync(primaryPath, 'utf-8');
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed.meters) && Array.isArray(parsed.readings)) {
         return parsed;
       }
-    } catch (e) {
-      console.error('Error reading meters_data.json:', e);
-    }
+    } catch {}
   }
 
   const initialData: MetersDbData = {
@@ -72,7 +103,7 @@ function ensureDataFile(): MetersDbData {
   };
 
   try {
-    fs.writeFileSync(filePath, JSON.stringify(initialData, null, 2), 'utf-8');
+    fs.writeFileSync(primaryPath, JSON.stringify(initialData, null, 2), 'utf-8');
   } catch (e) {
     console.error('Error initializing meters_data.json:', e);
   }
