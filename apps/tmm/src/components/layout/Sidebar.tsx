@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Home, Users, Map, Zap, Settings, 
-  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, Bell, User, Bot
+  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, Bell, User, Bot, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -302,46 +302,75 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Bottom Sidebar Footer: Notifications & User Profile */}
+      {/* Bottom Sidebar Footer: Notifications, User Profile & Logout */}
       <div className={cn("p-4 border-t border-slate-800/80 glass-divider flex items-center justify-between", isCollapsed && "flex-col gap-3 py-4 px-2")}>
         {/* User Avatar & Info (Hover Popover) */}
         <div 
-          className="relative"
+          className="relative flex-1"
           onMouseEnter={() => setIsUserHovered(true)}
           onMouseLeave={() => setIsUserHovered(false)}
         >
-          <button 
+          <div 
             className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/[0.06] transition-colors cursor-pointer group"
             title="Kullanıcı Profili"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600/30 to-purple-600/30 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs shadow-sm shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/30 to-[#F97316]/30 border border-[#F97316]/40 flex items-center justify-center text-[#F97316] font-bold text-xs shadow-sm shrink-0">
               <User className="w-4 h-4" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col text-left">
-                <span className="text-[9px] uppercase font-bold tracking-wider text-slate-500 leading-none">Yönetici Oturumu</span>
-                <span className="text-xs font-semibold text-slate-200 leading-tight mt-0.5 max-w-[120px] truncate">admin@terraceferi.com</span>
+                <span className="text-[9px] uppercase font-bold tracking-wider text-[#F97316] leading-none">Sistem Yöneticisi</span>
+                <span className="text-xs font-semibold text-slate-200 leading-tight mt-0.5 max-w-[120px] truncate">Serdar DOĞRUER</span>
               </div>
             )}
-          </button>
+          </div>
 
           {/* User Popover on Hover */}
           {isUserHovered && (
-            <div className={cn("absolute bottom-full mb-2 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl p-3 shadow-2xl z-50 min-w-48 animate-in fade-in slide-in-from-bottom-1 duration-150", isCollapsed ? "left-full ml-2 bottom-0 mb-0" : "left-0")}>
-              <div className="text-[9px] uppercase font-bold tracking-wider text-slate-500">Yönetici Oturumu</div>
-              <div className="text-xs font-semibold text-white mt-0.5 truncate">admin@terraceferi.com</div>
+            <div className={cn("absolute bottom-full mb-2 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl p-3 shadow-2xl z-50 min-w-52 animate-in fade-in slide-in-from-bottom-1 duration-150", isCollapsed ? "left-full ml-2 bottom-0 mb-0" : "left-0")}>
+              <div className="flex items-center space-x-2 pb-2 border-b border-slate-800 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-[#F97316]/20 border border-[#F97316]/30 flex items-center justify-center text-[#F97316] font-bold text-xs">
+                  SD
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white leading-none">Serdar DOĞRUER</div>
+                  <div className="text-[10px] text-amber-400 font-semibold mt-0.5">Süper Admin</div>
+                </div>
+              </div>
+              <div className="text-[10px] text-slate-400 truncate mb-2">serdardogruer@gmail.com</div>
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                  } finally {
+                    window.location.href = '/login';
+                  }
+                }}
+                className="w-full flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 rounded-lg text-red-300 text-xs font-medium transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Çıkış Yap</span>
+              </button>
             </div>
           )}
         </div>
 
-        {/* Notification Bell Button */}
-        <button 
-          className="relative p-2 glass-surface bg-slate-900/80 border border-slate-800 hover:bg-white/[0.08] rounded-xl transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
-          title="Bildirimler"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-blue-500 ring-2 ring-[#060B14]" />
-        </button>
+        {/* Action buttons */}
+        <div className="flex items-center space-x-1">
+          <button 
+            onClick={async () => {
+              try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+              } finally {
+                window.location.href = '/login';
+              }
+            }}
+            className="p-2 glass-surface bg-slate-900/80 border border-slate-800 hover:bg-red-950/40 hover:border-red-500/40 hover:text-red-400 rounded-xl transition-all text-slate-400 cursor-pointer"
+            title="Güvenli Çıkış Yap"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );

@@ -11,58 +11,74 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  const email = process.argv[2] || process.env.ADMIN_EMAIL || 'admin@terraceferi.com';
-  const password = process.argv[3] || process.env.ADMIN_PASSWORD || 'admin123';
-  const name = process.argv[4] || process.env.ADMIN_NAME || 'Sistem Yöneticisi';
+  const usersToSeed = [
+    {
+      email: 'serdardogruer@gmail.com',
+      password: 'dgrr1213',
+      name: 'Serdar DOĞRUER',
+      role: 'ADMIN'
+    },
+    {
+      email: 'serdar@terraceferi.com',
+      password: 'dgrr1213',
+      name: 'Serdar DOĞRUER',
+      role: 'ADMIN'
+    },
+    {
+      email: 'admin@terraceferi.com',
+      password: 'dgrr1213',
+      name: 'Sistem Yöneticisi',
+      role: 'ADMIN'
+    }
+  ];
 
   console.log('====================================================');
-  console.log('👤 TerraceFeri - İlk Admin Kullanıcı Oluşturuluyor');
+  console.log('👤 TerraceFeri - Admin Kullanıcılar Tohumlanıyor');
   console.log('====================================================');
-  console.log(`Email: ${email}`);
-  console.log(`İsim:  ${name}`);
-  console.log('----------------------------------------------------');
 
   try {
-    const existing = await prisma.user.findUnique({
-      where: { email }
-    });
+    for (const u of usersToSeed) {
+      console.log(`Kontrol ediliyor: ${u.email} (${u.name})`);
+      const existing = await prisma.user.findUnique({
+        where: { email: u.email }
+      });
 
-    if (existing) {
-      console.log(`ℹ️ "${email}" kullanıcısı zaten mevcut. Şifre ve rol güncelleniyor...`);
-      const updated = await prisma.user.update({
-        where: { email },
-        data: {
-          name,
-          password,
-          role: 'ADMIN',
-          status: 'ACTIVE'
-        }
-      });
-      console.log('✅ Kullanıcı başarıyla güncellendi:', updated.id);
-    } else {
-      const created = await prisma.user.create({
-        data: {
-          name,
-          email,
-          password,
-          role: 'ADMIN',
-          status: 'ACTIVE'
-        }
-      });
-      console.log('🎉 İlk Admin kullanıcı başarıyla oluşturuldu!');
-      console.log(`Kullanıcı ID: ${created.id}`);
+      if (existing) {
+        console.log(`ℹ️ "${u.email}" kullanıcısı mevcut. Bilgiler güncelleniyor...`);
+        const updated = await prisma.user.update({
+          where: { email: u.email },
+          data: {
+            name: u.name,
+            password: u.password,
+            role: u.role,
+            status: 'ACTIVE'
+          }
+        });
+        console.log('✅ Kullanıcı güncellendi:', updated.id);
+      } else {
+        const created = await prisma.user.create({
+          data: {
+            name: u.name,
+            email: u.email,
+            password: u.password,
+            role: u.role,
+            status: 'ACTIVE'
+          }
+        });
+        console.log('🎉 Kullanıcı oluşturuldu:', created.id);
+      }
     }
 
     console.log('====================================================');
-    console.log(`Giriş Bilgileri:`);
-    console.log(`E-posta: ${email}`);
-    console.log(`Şifre:   ${password}`);
+    console.log('✨ Tüm Admin kullanıcıları başarıyla hazırlandı:');
+    console.log('👤 Serdar DOĞRUER (serdardogruer@gmail.com) -> Şifre: dgrr1213');
     console.log('====================================================');
   } catch (err) {
-    console.error('❌ Admin kullanıcı oluşturulurken hata:', err);
-    process.exit(1);
+    console.warn('⚠️ Prisma veritabanına bağlanılamadı (fallback auth devrede):', err.message);
   } finally {
-    await prisma.$disconnect();
+    try {
+      await prisma.$disconnect();
+    } catch {}
   }
 }
 

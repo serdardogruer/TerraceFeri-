@@ -9,32 +9,55 @@ export async function POST(req: NextRequest) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ success: false, message: 'E-posta ve şifre gereklidir' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'E-posta/Kullanıcı adı ve şifre gereklidir' }, { status: 400 });
     }
+
+    const cleanInput = String(email).trim().toLowerCase();
+    const cleanPassword = String(password).trim();
 
     let user: any = null;
 
-    // 1. Veritabanından kullanıcı kontrolü
+    // 1. Veritabanından kullanıcı kontrolü (case-insensitive email)
     try {
-      user = await coreDb.user.findUnique({
-        where: { email }
+      user = await coreDb.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: cleanInput, mode: 'insensitive' } },
+            { email: cleanInput }
+          ]
+        }
       });
     } catch (dbErr) {
-      console.warn('Veritabanı kullanıcı sorgusu başarısız, fallback deneniyor:', dbErr);
+      console.warn('Veritabanı kullanıcı sorgusu uyarısı:', dbErr);
     }
 
-    // 2. Kullanıcı doğrulama (Veritabanı veya varsayılan admin)
-    const isDbMatch = user && user.password === password && user.status === 'ACTIVE';
-    const isDefaultAdmin = email === 'admin@terraceferi.com' && password === 'admin123';
+    // 2. Kullanıcı doğrulama (Veritabanı veya Tanımlı Süper Adminler)
+    const isDbMatch = user && user.password === cleanPassword && user.status === 'ACTIVE';
+    
+    // Serdar Doğruer - Admin Girişi
+    const isSerdarAdmin = (
+      cleanInput === 'serdardogruer@gmail.com' ||
+      cleanInput === 'serdar@terraceferi.com' ||
+      cleanInput === 'serdar.dogruer@terraceferi.com' ||
+      cleanInput === 'serdardogruer' ||
+      cleanInput === 'serdar'
+    ) && cleanPassword === 'dgrr1213';
 
-    if (isDbMatch || isDefaultAdmin) {
+    // Standart Sistem Yöneticisi Girişi
+    const isDefaultAdmin = (
+      cleanInput === 'admin@terraceferi.com' ||
+      cleanInput === 'admin'
+    ) && (cleanPassword === 'dgrr1213' || cleanPassword === 'admin123');
+
+    if (isDbMatch || isSerdarAdmin || isDefaultAdmin) {
       const userRole = user?.role || 'ADMIN';
-      const userId = user?.id || 'default-admin-id';
-      const userName = user?.name || 'Sistem Yöneticisi';
+      const userId = user?.id || (isSerdarAdmin ? 'usr-serdar-dogruer' : 'default-admin-id');
+      const userName = user?.name || (isSerdarAdmin ? 'Serdar DOĞRUER' : 'Sistem Yöneticisi');
+      const userEmail = user?.email || (isSerdarAdmin ? 'serdardogruer@gmail.com' : 'admin@terraceferi.com');
 
       const token = await new SignJWT({ 
         sub: userId, 
-        email: email,
+        email: userEmail,
         name: userName,
         role: userRole
       })
@@ -48,7 +71,7 @@ export async function POST(req: NextRequest) {
         message: 'Giriş başarılı',
         user: {
           id: userId,
-          email,
+          email: userEmail,
           name: userName,
           role: userRole
         }
