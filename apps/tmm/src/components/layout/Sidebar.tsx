@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Home, Users, Map, Zap, Settings, 
-  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, Bell, User, Bot, LogOut
+  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, Bell, User, Bot, LogOut, Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -33,6 +33,7 @@ const defaultMenus: MenuItem[] = [
   { id: '6', name: 'Arızalar', icon: AlertTriangle, href: '/admin/faults' },
   { id: '7', name: 'Sayaçlar', icon: Zap, href: '/admin/meters' },
   { id: '8', name: 'Firmalar', icon: Briefcase, href: '/admin/settings/companies' },
+  { id: '9', name: 'Yönetim Masası', icon: Send, href: '/admin/management-requests' },
 ];
 
 const settingsSubItems = [
@@ -121,9 +122,8 @@ export function Sidebar() {
       if (savedMenus) {
         const parsedIds: string[] = JSON.parse(savedMenus);
         const reordered = parsedIds.map((id: string) => defaultMenus.find(m => m.id === id)).filter(Boolean) as MenuItem[];
-        if (reordered.length === defaultMenus.length) {
-          setMenus(reordered);
-        }
+        const missing = defaultMenus.filter(m => !reordered.some(r => r.id === m.id));
+        setMenus([...reordered, ...missing]);
       }
     } catch {
       // LocalStorage hatası olursa varsayılan menüleri koru

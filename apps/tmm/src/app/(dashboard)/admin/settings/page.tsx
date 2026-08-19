@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase } from 'lucide-react';
+import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase, Send } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsPage() {
@@ -62,6 +62,16 @@ export default function SettingsPage() {
       db: 'terraceferi_meters',
       version: '1.0.0',
       href: '/admin/meters'
+    },
+    {
+      id: 'management',
+      name: 'Yönetim Masası Modülü',
+      description: 'Teknik bilgilendirme notları ve malzeme / satın alma talep formları',
+      status: 'active',
+      icon: Send,
+      db: 'terraceferi_management',
+      version: '1.0.0',
+      href: '/admin/management-requests'
     }
   ];
 

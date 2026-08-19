@@ -40,6 +40,11 @@ generator personnelClient {
   output   = "../node_modules/@prisma-clients/personnel"
 }
 
+generator managementClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/management"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -284,4 +289,34 @@ model LocationSetting {
   allowedIps          String[]
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+// ==========================================
+// 8. MANAGEMENT REQUESTS & NOTICES MODULE
+// ==========================================
+model ManagementRequest {
+  id                 String    @id @default(uuid())
+  type               String    // 'MALZEME_TALEBI' | 'BILGILENDIRME'
+  title              String
+  description        String?
+  category           String?   // 'Mekanik' | 'Elektrik' | 'Havuz' | 'Asansör' | 'Ortak Alan' | 'Diğer'
+  location           String?   // 'Tesis Geneli' | 'Kazan Dairesi' | 'Sosyal Tesis' vs.
+  urgency            String    @default("Normal") // 'Dusuk' | 'Normal' | 'Acil' | 'Kritik'
+  status             String    @default("Beklemede") // 'Beklemede' | 'Incelemede' | 'Onaylandi' | 'Reddedildi' | 'Tamamlandi'
+  
+  // Malzeme Talep detayları
+  estimatedCost      Float?    // Toplam Tahmini Maliyet (TL)
+  supplier           String?   // Teklif Alınan Firma / Tedarikçi
+  itemsJson          String?   // [{"name":"...", "quantity": 2, "unit": "Adet", "estimatedPrice": 500}]
+  
+  // Yönetim Karar & Notları
+  managementResponse String?   // Yönetim açıklaması / yanıtı
+  approvedBudget     Float?    // Yönetimin onayladığı bütçe
+  
+  requesterName      String?   @default("Serdar DOĞRUER (Teknik Sorumlu)")
+  attachmentUrls     String?   // Fotoğraflar / belgeler JSON
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 }

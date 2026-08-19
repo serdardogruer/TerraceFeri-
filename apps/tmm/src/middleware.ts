@@ -35,11 +35,11 @@ export async function middleware(request: NextRequest) {
       response.headers.set('x-user-role', String(payload.role || ''));
       return response;
     } catch (err) {
-      console.warn('Middleware: JWT token doğrulanamadı:', err);
+      console.warn('Middleware: JWT token doğrulanamadı veya süresi doldu:', err);
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       const response = NextResponse.redirect(loginUrl);
-      // Geçersiz token çerezini temizle
+      // Geçersiz veya süresi dolmuş token çerezini temizle
       response.cookies.set('tmm_token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

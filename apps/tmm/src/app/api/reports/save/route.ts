@@ -85,31 +85,58 @@ export async function POST(req: NextRequest) {
     const dateFormatted = formatDateTR(now);
     const dateISO = formatDateISO(now);
 
-    const rowsHtml = faults.length > 0 ? faults.map((f, i) => {
+    const arizaFaults = faults.filter(f => f.recordType === 'ARIZA');
+    const rutinFaults = faults.filter(f => f.recordType !== 'ARIZA');
+
+    const arizaRowsHtml = arizaFaults.length > 0 ? arizaFaults.map((f, i) => {
       const isCompleted = f.status === 'Tamamlandı';
-      const isPending = f.status === 'Bekliyor' || !f.status;
       const statusHtml = isCompleted 
         ? `<span style="color: #059669; font-weight: 800;">Tamamlandı</span>`
-        : `<span style="color: #d97706; font-weight: 800;">Bekliyor</span>`;
+        : `<span style="color: #d97706; font-weight: 800;">${f.status || 'Bekliyor'}</span>`;
       
       const timeStr = f.faultDate ? new Date(f.faultDate).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : 'Günlük Tur';
-      const category = f.recordType === 'ARIZA' ? 'Arıza Bildirimi' : 'Günlük Devriye';
-      const priority = f.recordType === 'ARIZA' ? (f.priority?.toUpperCase() || 'NORMAL') : 'RUTİN';
+      const priority = f.priority?.toUpperCase() || 'NORMAL';
 
       return `
         <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0;">
-          <td style="padding: 9px 10px; text-align: center; color: #64748b; font-weight: bold; font-size: 11px;">${i + 1}</td>
-          <td style="padding: 9px 10px; font-weight: 700; color: #0f172a; font-size: 11px;">${f.title}</td>
-          <td style="padding: 9px 10px; color: #475569; font-weight: 500; font-size: 11px;">${category}</td>
-          <td style="padding: 9px 10px; color: #475569; font-weight: 500; font-size: 11px;">Tesis Geneli</td>
-          <td style="padding: 9px 10px; text-align: center; font-weight: 700; color: #475569; font-size: 10px;">${priority}</td>
-          <td style="padding: 9px 10px; text-align: center; color: #64748b; font-size: 11px;">${timeStr}</td>
-          <td style="padding: 9px 10px; text-align: center; font-size: 11px;">${statusHtml}</td>
+          <td style="padding: 8px 6px; text-align: center; color: #64748b; font-weight: bold; font-size: 11px;">${i + 1}</td>
+          <td style="padding: 8px 10px; font-weight: 700; color: #0f172a; font-size: 11px;">${f.title}</td>
+          <td style="padding: 8px 8px; color: #475569; font-weight: 500; font-size: 11px;">Arıza Bildirimi</td>
+          <td style="padding: 8px 8px; color: #475569; font-weight: 500; font-size: 11px;">Tesis Geneli</td>
+          <td style="padding: 8px 8px; text-align: center; font-weight: 700; color: #b91c1c; font-size: 10px;">${priority}</td>
+          <td style="padding: 8px 8px; text-align: center; color: #64748b; font-size: 11px;">${timeStr}</td>
+          <td style="padding: 8px 8px; text-align: center; font-size: 11px;">${statusHtml}</td>
         </tr>
       `;
     }).join('') : `
       <tr>
-        <td colspan="7" style="padding: 20px; text-align: center; color: #64748b; font-size: 12px;">Bugün için kayıtlı işlem veya arıza bulunmamaktadır.</td>
+        <td colspan="7" style="padding: 14px; text-align: center; color: #94a3b8; font-style: italic; font-size: 11px;">Bu tarihe ait kayıtlı arıza bildirimi bulunmamaktadır.</td>
+      </tr>
+    `;
+
+    const rutinRowsHtml = rutinFaults.length > 0 ? rutinFaults.map((f, i) => {
+      const isCompleted = f.status === 'Tamamlandı';
+      const statusHtml = isCompleted 
+        ? `<span style="color: #059669; font-weight: 800;">Tamamlandı</span>`
+        : `<span style="color: #d97706; font-weight: 800;">${f.status || 'Bekliyor'}</span>`;
+      
+      const category = f.recordType === 'AYLIK_RUTIN' ? 'Aylık Rutin' : 'Günlük Devriye';
+      const period = f.recordType === 'AYLIK_RUTIN' ? 'Aylık Tur' : 'Günlük Tur';
+
+      return `
+        <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 8px 6px; text-align: center; color: #64748b; font-weight: bold; font-size: 11px;">${i + 1}</td>
+          <td style="padding: 8px 10px; font-weight: 700; color: #0f172a; font-size: 11px;">${f.title}</td>
+          <td style="padding: 8px 8px; color: #475569; font-weight: 500; font-size: 11px;">${category}</td>
+          <td style="padding: 8px 8px; color: #475569; font-weight: 500; font-size: 11px;">Tesis Geneli</td>
+          <td style="padding: 8px 8px; text-align: center; font-weight: 700; color: #0284c7; font-size: 10px;">RUTİN</td>
+          <td style="padding: 8px 8px; text-align: center; color: #64748b; font-size: 11px;">${period}</td>
+          <td style="padding: 8px 8px; text-align: center; font-size: 11px;">${statusHtml}</td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="7" style="padding: 14px; text-align: center; color: #94a3b8; font-style: italic; font-size: 11px;">Bu tarihe ait kayıtlı günlük rutin veya devriye bulunmamaktadır.</td>
       </tr>
     `;
 
@@ -122,7 +149,7 @@ export async function POST(req: NextRequest) {
   <style>
     @page {
       size: A4 portrait;
-      margin: 15mm 12mm 15mm 12mm;
+      margin: 12mm 10mm 12mm 10mm;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -141,28 +168,61 @@ export async function POST(req: NextRequest) {
       background-color: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       text-align: center;
-      margin-top: 10px;
-      margin-bottom: 16px;
+      margin-top: 6px;
+      margin-bottom: 14px;
+    }
+    .section-header-ariza {
+      background-color: #fff1f2;
+      color: #9f1239;
+      border: 1px solid #fecdd3;
+      border-left: 4px solid #e11d48;
+      padding: 7px 12px;
+      border-radius: 6px 6px 0 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-header-rutin {
+      background-color: #f0f9ff;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      border-left: 4px solid #0284c7;
+      padding: 7px 12px;
+      border-radius: 6px 6px 0 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      border: 1px solid #e2e8f0;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      overflow: hidden;
     }
     .data-table th {
-      background-color: #0f172a;
-      color: #ffffff;
+      background-color: #f8fafc;
+      color: #475569;
       font-size: 9px;
       font-weight: 800;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      padding: 9px 10px;
-      border: none;
+      padding: 7px 8px;
+      border-bottom: 1px solid #cbd5e1;
     }
     .footer-signatures {
-      margin-top: 40px;
+      margin-top: 30px;
       width: 100%;
       border-collapse: collapse;
     }
@@ -200,23 +260,53 @@ export async function POST(req: NextRequest) {
     </div>
   </div>
 
-  <!-- DATA TABLE -->
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th style="width: 30px; text-align: center;">#</th>
-        <th style="text-align: left;">İŞLEM / GÖREV / ARIZA</th>
-        <th style="text-align: left; width: 110px;">KATEGORİ</th>
-        <th style="text-align: left; width: 100px;">BÖLGE / EKİPMAN</th>
-        <th style="text-align: center; width: 90px;">ÖNCELİK / TÜR</th>
-        <th style="text-align: center; width: 90px;">ZAMAN / SAAT</th>
-        <th style="text-align: center; width: 120px;">TAMAMLANMA DURUMU</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rowsHtml}
-    </tbody>
-  </table>
+  <!-- 1. BÖLÜM: ARIZALAR -->
+  <div style="margin-bottom: 18px;">
+    <div class="section-header-ariza">
+      <span>⚠️ 1. ARIZA VE TALEP BİLDİRİMLERİ</span>
+      <span style="font-size: 10px; background: #ffe4e6; color: #be123c; border: 1px solid #fca5a5; padding: 2px 8px; border-radius: 4px; font-weight: 700;">${arizaFaults.length} KAYIT</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 26px; text-align: center;">#</th>
+          <th style="text-align: left;">ARIZA / TALEP BAŞLIĞI</th>
+          <th style="text-align: left; width: 100px;">KATEGORİ</th>
+          <th style="text-align: left; width: 90px;">BÖLGE / EKİPMAN</th>
+          <th style="text-align: center; width: 75px;">ÖNCELİK</th>
+          <th style="text-align: center; width: 70px;">SAAT</th>
+          <th style="text-align: center; width: 90px;">DURUM</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${arizaRowsHtml}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. BÖLÜM: RUTİN İŞLER -->
+  <div style="margin-bottom: 18px;">
+    <div class="section-header-rutin">
+      <span>📋 2. GÜNLÜK DEVRİYE VE RUTİN İŞLER</span>
+      <span style="font-size: 10px; background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; padding: 2px 8px; border-radius: 4px; font-weight: 700;">${rutinFaults.length} KAYIT</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 26px; text-align: center;">#</th>
+          <th style="text-align: left;">RUTİN GÖREV / KONTROL</th>
+          <th style="text-align: left; width: 100px;">KATEGORİ</th>
+          <th style="text-align: left; width: 90px;">BÖLGE / EKİPMAN</th>
+          <th style="text-align: center; width: 75px;">TÜR</th>
+          <th style="text-align: center; width: 70px;">PERİYOT</th>
+          <th style="text-align: center; width: 90px;">DURUM</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rutinRowsHtml}
+      </tbody>
+    </table>
+  </div>
 
   <!-- SIGNATURES FOOTER -->
   <table class="footer-signatures">

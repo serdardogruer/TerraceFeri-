@@ -341,6 +341,9 @@ export default function FaultsPage() {
 
   const generateReport = async (dateLabel: string, items: FaultRecord[]) => {
     const activeItems = items.filter(item => item.recordType !== 'AYLIK_RUTIN');
+    const arizaItems = activeItems.filter(i => i.recordType === 'ARIZA');
+    const rutinItems = activeItems.filter(i => i.recordType !== 'ARIZA');
+
     setReportItems(activeItems);
     setReportCode(getRandomReportCode());
     setIsReportModalOpen(true);
@@ -353,11 +356,18 @@ export default function FaultsPage() {
 
 📌 ARIZA & RUTİN ÖZETİ:
 - Toplam İşlem Sayısı: ${activeItems.length}
-- Bekleyen / İşlemdeki Arızalar: ${activeItems.filter(i => i.status !== 'Tamamlandı').length}
-- Tamamlanan İşlemler: ${activeItems.filter(i => i.status === 'Tamamlandı').length}
+- Arıza Bildirimleri: ${arizaItems.length} (Tamamlanan: ${arizaItems.filter(i => i.status === 'Tamamlandı').length}, Bekleyen: ${arizaItems.filter(i => i.status !== 'Tamamlandı').length})
+- Günlük Devriye & Rutin: ${rutinItems.length} (Tamamlanan: ${rutinItems.filter(i => i.status === 'Tamamlandı').length})
 
-📝 DETAYLI LİSTE:
-${activeItems.map((item, idx) => `${idx + 1}. [${item.priority}] ${item.title} (${item.status})`).join('\n')}
+🔴 1. ARIZA BİLDİRİMLERİ:
+${arizaItems.length > 0
+  ? arizaItems.map((item, idx) => `${idx + 1}. [${item.priority?.toUpperCase() || 'NORMAL'}] ${item.title} (${item.status})`).join('\n')
+  : 'Bu tarihe ait kayıtlı arıza bulunmamaktadır.'}
+
+📋 2. GÜNLÜK DEVRİYE VE RUTİN İŞLER:
+${rutinItems.length > 0
+  ? rutinItems.map((item, idx) => `${idx + 1}. [RUTİN] ${item.title} (${item.status})`).join('\n')
+  : 'Bu tarihe ait kayıtlı rutin görev bulunmamaktadır.'}
 
 ====================================================`;
 
@@ -850,160 +860,243 @@ ${activeItems.map((item, idx) => `${idx + 1}. [${item.priority}] ${item.title} (
       )}
 
       {/* RAPOR GÖNDER MODALI (PRINTABLE) */}
-      {isReportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#05070a]/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsReportModalOpen(false)}>
-          <style>{`
-            @page { margin: 10mm 8mm; size: A4 portrait; }
-            @media print {
-              body * { visibility: hidden; }
-              #print-report, #print-report * { visibility: visible; }
-              #print-report {
-                position: fixed;
-                left: 0; top: 0;
-                width: 100%;
-                background: white !important;
-                color: black !important;
-                padding: 0 !important;
+      {isReportModalOpen && (() => {
+        const arizaItems = reportItems.filter(item => item.recordType === 'ARIZA');
+        const rutinItems = reportItems.filter(item => item.recordType !== 'ARIZA');
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#05070a]/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsReportModalOpen(false)}>
+            <style>{`
+              @page { margin: 10mm 8mm; size: A4 portrait; }
+              @media print {
+                body * { visibility: hidden; }
+                #print-report, #print-report * { visibility: visible; }
+                #print-report {
+                  position: fixed;
+                  left: 0; top: 0;
+                  width: 100%;
+                  background: white !important;
+                  color: black !important;
+                  padding: 0 !important;
+                }
+                .print-hide { display: none !important; }
+                .report-table {
+                  width: 100% !important;
+                  table-layout: fixed !important;
+                  border-collapse: collapse !important;
+                  font-size: 8pt !important;
+                }
+                .report-table th {
+                  border-bottom: 1px solid #cbd5e1 !important;
+                  padding: 5px 6px !important;
+                  white-space: nowrap !important;
+                  overflow: hidden !important;
+                  background-color: #f1f5f9 !important;
+                  color: #334155 !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                .report-table td {
+                  border-bottom: 1px solid #f1f5f9 !important;
+                  padding: 5px 6px !important;
+                  white-space: normal !important;
+                  word-break: break-word !important;
+                }
+                .section-header-ariza {
+                  background-color: #fff1f2 !important;
+                  color: #9f1239 !important;
+                  border: 1px solid #fecdd3 !important;
+                  border-left: 4px solid #e11d48 !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                .section-header-rutin {
+                  background-color: #f0f9ff !important;
+                  color: #0369a1 !important;
+                  border: 1px solid #bae6fd !important;
+                  border-left: 4px solid #0284c7 !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                .print-box { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .stripe-row { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               }
-              .print-hide { display: none !important; }
-              #report-table {
-                width: 100% !important;
-                table-layout: fixed !important;
-                border-collapse: collapse !important;
-                font-size: 8pt !important;
-              }
-              #report-table th {
-                border-bottom: 1px solid #e2e8f0 !important;
-                padding: 5px 6px !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-              }
-              #report-table td {
-                border-bottom: 1px solid #f1f5f9 !important;
-                padding: 5px 6px !important;
-                white-space: normal !important;
-                word-break: break-word !important;
-              }
-              #report-table thead tr {
-                background-color: #0f172a !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              #report-table thead th { color: white !important; }
-              .print-box { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-              .stripe-row { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            }
-          `}</style>
-          
-          <div className="bg-white border border-slate-300 w-full max-w-4xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative text-slate-800" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header (Hidden on print) */}
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 print-hide shrink-0">
-              <h3 className="text-xl font-bold text-slate-800 flex items-center"><Printer className="w-5 h-5 mr-3 text-indigo-600" /> Rapor Önizleme & Yazdırma</h3>
-              <div className="flex items-center space-x-3">
-                <button onClick={copyReport} className="flex items-center px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-md transition-colors shadow-md">
-                  <Printer className="w-4 h-4 mr-2" /> PDF Kaydet / Yazdır
-                </button>
-                <button onClick={() => setIsReportModalOpen(false)} className="p-2 text-slate-500 hover:text-slate-800 bg-slate-200 rounded-md"><X className="w-5 h-5" /></button>
+            `}</style>
+            
+            <div className="bg-white border border-slate-300 w-full max-w-4xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative text-slate-800" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header (Hidden on print) */}
+              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 print-hide shrink-0">
+                <h3 className="text-xl font-bold text-slate-800 flex items-center"><Printer className="w-5 h-5 mr-3 text-indigo-600" /> Rapor Önizleme & Yazdırma</h3>
+                <div className="flex items-center space-x-3">
+                  <button onClick={copyReport} className="flex items-center px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-md transition-colors shadow-md">
+                    <Printer className="w-4 h-4 mr-2" /> PDF Kaydet / Yazdır
+                  </button>
+                  <button onClick={() => setIsReportModalOpen(false)} className="p-2 text-slate-500 hover:text-slate-800 bg-slate-200 rounded-md"><X className="w-5 h-5" /></button>
+                </div>
               </div>
-            </div>
 
-            {/* Print Content Area */}
-            <div id="print-report" className="flex-1 overflow-y-auto bg-white" style={{padding:'16px 20px'}}>
-              <div style={{maxWidth:'760px', margin:'0 auto'}}>
-                {/* Header Section */}
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h1 className="text-xl font-black text-slate-900 tracking-tight">TERRACEFERİ KONUTLARI</h1>
-                    <h2 className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5">TerraceFeri Site Yöneticiliği</h2>
-                    <h3 className="text-[10px] text-slate-400">Teknik Operasyon & Bakım Yönetim Sistemi (TMM Core)</h3>
+              {/* Print Content Area */}
+              <div id="print-report" className="flex-1 overflow-y-auto bg-white" style={{padding:'16px 20px'}}>
+                <div style={{maxWidth:'760px', margin:'0 auto'}}>
+                  {/* Header Section */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h1 className="text-xl font-black text-slate-900 tracking-tight">TERRACEFERİ KONUTLARI</h1>
+                      <h2 className="text-[10px] font-bold text-slate-500 tracking-widest mt-0.5">TerraceFeri Site Yöneticiliği</h2>
+                      <h3 className="text-[10px] text-slate-400">Teknik Operasyon & Bakım Yönetim Sistemi (TMM Core)</h3>
+                    </div>
+                    <div className="text-right">
+                      <div className="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold mb-1 border border-slate-200">RAPOR KODU: {reportCode}</div>
+                      <div className="text-[10px] text-slate-600">Düzenlenme Tarihi: <b className="text-slate-800">{new Date().toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})}</b></div>
+                      <div className="text-[10px] text-slate-500">Modül: <span className="font-semibold text-slate-600">Günlük Operasyon Raporu</span></div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="inline-block bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold mb-1 border border-slate-200">RAPOR KODU: {reportCode}</div>
-                    <div className="text-[10px] text-slate-600">Düzenlenme Tarihi: <b className="text-slate-800">{new Date().toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})}</b></div>
-                    <div className="text-[10px] text-slate-500">Modül: <span className="font-semibold text-slate-600">Günlük Operasyon Raporu</span></div>
+
+                  <hr className="border-t-2 border-slate-800 mb-3" />
+
+                  {/* Title Box */}
+                  <div className="print-box bg-slate-50 border border-slate-200 rounded-lg p-2 text-center mb-4">
+                    <h2 className="text-base font-black text-slate-900 mb-0.5 uppercase">TERRACEFERİ KONUTLARI {reportItems?.[0] ? new Date(reportItems[0].faultDate).toISOString().split('T')[0] : ''} OPERASYON RAPORU</h2>
+                    <p className="text-[10px] text-slate-500 font-medium">{reportItems?.[0] ? new Date(reportItems[0].faultDate).toISOString().split('T')[0] : ''} tarihli arıza bildirimleri, devriyeler ve rutin denetim dökümü</p>
                   </div>
-                </div>
 
-                <hr className="border-t-2 border-slate-800 mb-3" />
-
-                {/* Title Box */}
-                <div className="print-box bg-slate-50 border border-slate-200 rounded-lg p-2 text-center mb-3">
-                  <h2 className="text-base font-black text-slate-900 mb-0.5 uppercase">TERRACEFERİ KONUTLARI {reportItems?.[0] ? new Date(reportItems[0].faultDate).toISOString().split('T')[0] : ''} OPERASYON RAPORU</h2>
-                  <p className="text-[10px] text-slate-500 font-medium">{reportItems?.[0] ? new Date(reportItems[0].faultDate).toISOString().split('T')[0] : ''} tarihli arıza bildirimleri, devriyeler ve rutin denetim dökümü</p>
-                </div>
-
-                {/* Table */}
-                <div style={{border:'1px solid #e2e8f0', borderRadius:'8px', overflow:'hidden', marginBottom:'20px'}}>
-                  <table id="report-table" style={{width:'100%', tableLayout:'fixed', borderCollapse:'collapse', fontSize:'12px'}}>
-                    <colgroup>
-                      <col style={{width:'26px'}} />
-                      <col style={{width:'auto'}} />
-                      <col style={{width:'100px'}} />
-                      <col style={{width:'90px'}} />
-                      <col style={{width:'75px'}} />
-                      <col style={{width:'70px'}} />
-                      <col style={{width:'90px'}} />
-                    </colgroup>
-                    <thead>
-                      <tr style={{background:'#0f172a', color:'white'}}>
-                        <th style={{padding:'8px 6px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', textAlign:'center', whiteSpace:'nowrap', overflow:'hidden'}}>#</th>
-                        <th style={{padding:'8px 10px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>İşlem / Görev / Arıza</th>
-                        <th style={{padding:'8px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>Kategori</th>
-                        <th style={{padding:'8px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>Bölge / Ekipman</th>
-                        <th style={{padding:'8px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>Öncelik / Tür</th>
-                        <th style={{padding:'8px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>Zaman / Saat</th>
-                        <th style={{padding:'8px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden'}}>Tamamlanma Durumu</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reportItems.map((item, index) => (
-                        <tr key={item.id} className={index % 2 !== 0 ? 'stripe-row' : ''} style={{background: index % 2 !== 0 ? '#f8fafc' : 'white', borderBottom:'1px solid #f1f5f9'}}>
-                          <td style={{padding:'7px 6px', textAlign:'center', color:'#94a3b8', fontWeight:'600', whiteSpace:'nowrap', overflow:'hidden'}}>{index + 1}</td>
-                          <td className="cell-title" style={{padding:'7px 10px', color:'#0f172a', fontWeight:'700', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.title}</td>
-                          <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>
-                            {item.recordType === 'ARIZA' ? 'Arıza Bildirimi' : item.recordType === 'AYLIK_RUTIN' ? 'Aylık Rutin' : 'Günlük Devriye'}
-                          </td>
-                          <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Tesis Geneli</td>
-                          <td style={{padding:'7px 8px', color:'#334155', fontWeight:'700', textTransform:'uppercase', whiteSpace:'nowrap', overflow:'hidden'}}>
-                            {item.recordType === 'ARIZA' ? item.priority : 'RUTİN'}
-                          </td>
-                          <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden'}}>
-                            {item.recordType === 'ARIZA' ? new Date(item.faultDate).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : 'Günlük Tur'}
-                          </td>
-                          <td style={{padding:'7px 8px', whiteSpace:'nowrap', overflow:'hidden'}}>
-                            <span style={{fontWeight:'700', color: item.status === 'Bekliyor' ? '#d97706' : item.status === 'İşlemde' ? '#2563eb' : '#059669'}}>
-                              {item.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                      {reportItems.length === 0 && (
-                        <tr>
-                          <td colSpan={7} style={{padding:'16px', textAlign:'center', color:'#94a3b8', fontStyle:'italic', fontSize:'12px'}}>Bu tarihe ait kayıt bulunmamaktadır.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Signatures */}
-                <div className="flex justify-between items-start mt-6 pt-2 pb-2">
-                  <div>
-                    <div className="font-bold text-slate-800 text-[11px]">Teknik Sorumlu</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">Serdar DOĞRUER</div>
-                    <div className="mt-4 border-b border-slate-300 w-40"></div>
+                  {/* 1. BÖLÜM: ARIZALAR */}
+                  <div style={{marginBottom: '20px'}}>
+                    <div className="section-header-ariza" style={{display:'flex', alignItems:'center', justifyContent:'space-between', background:'#fff1f2', color:'#9f1239', border:'1px solid #fecdd3', borderLeft:'4px solid #e11d48', padding:'7px 12px', borderRadius:'6px 6px 0 0', fontWeight:'800', fontSize:'11px', letterSpacing:'0.5px', textTransform:'uppercase'}}>
+                      <span style={{display:'flex', alignItems:'center', gap:'6px'}}>⚠️ 1. ARIZA VE TALEP BİLDİRİMLERİ</span>
+                      <span style={{fontSize:'10px', background:'#ffe4e6', color:'#be123c', border:'1px solid #fca5a5', padding:'2px 8px', borderRadius:'4px', fontWeight:'700'}}>{arizaItems.length} KAYIT</span>
+                    </div>
+                    <div style={{border:'1px solid #e2e8f0', borderTop:'none', borderRadius:'0 0 6px 6px', overflow:'hidden'}}>
+                      <table className="report-table" style={{width:'100%', tableLayout:'fixed', borderCollapse:'collapse', fontSize:'12px'}}>
+                        <colgroup>
+                          <col style={{width:'26px'}} />
+                          <col style={{width:'auto'}} />
+                          <col style={{width:'100px'}} />
+                          <col style={{width:'90px'}} />
+                          <col style={{width:'75px'}} />
+                          <col style={{width:'70px'}} />
+                          <col style={{width:'90px'}} />
+                        </colgroup>
+                        <thead>
+                          <tr style={{background:'#f8fafc', color:'#475569', borderBottom:'1px solid #cbd5e1'}}>
+                            <th style={{padding:'7px 6px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', textAlign:'center', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>#</th>
+                            <th style={{padding:'7px 10px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Arıza / Talep Başlığı</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Kategori</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Bölge / Ekipman</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Öncelik</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Saat</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Durum</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {arizaItems.map((item, index) => (
+                            <tr key={item.id} className={index % 2 !== 0 ? 'stripe-row' : ''} style={{background: index % 2 !== 0 ? '#f8fafc' : 'white', borderBottom:'1px solid #f1f5f9'}}>
+                              <td style={{padding:'7px 6px', textAlign:'center', color:'#94a3b8', fontWeight:'600', whiteSpace:'nowrap', overflow:'hidden'}}>{index + 1}</td>
+                              <td className="cell-title" style={{padding:'7px 10px', color:'#0f172a', fontWeight:'700', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.title}</td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Arıza Bildirimi</td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Tesis Geneli</td>
+                              <td style={{padding:'7px 8px', color:'#b91c1c', fontWeight:'700', textTransform:'uppercase', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                {item.priority?.toUpperCase() || 'NORMAL'}
+                              </td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                {new Date(item.faultDate).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}
+                              </td>
+                              <td style={{padding:'7px 8px', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                <span style={{fontWeight:'700', color: item.status === 'Bekliyor' ? '#d97706' : item.status === 'İşlemde' ? '#2563eb' : '#059669'}}>
+                                  {item.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                          {arizaItems.length === 0 && (
+                            <tr>
+                              <td colSpan={7} style={{padding:'14px', textAlign:'center', color:'#94a3b8', fontStyle:'italic', fontSize:'11px'}}>Bu tarihe ait kayıtlı arıza bildirimi bulunmamaktadır.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-slate-800 text-[11px]">Site Müdürü</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">Saliha ERCAN</div>
-                    <div className="mt-4 border-b border-slate-300 w-40 ml-auto"></div>
+
+                  {/* 2. BÖLÜM: RUTİN İŞLER */}
+                  <div style={{marginBottom: '20px'}}>
+                    <div className="section-header-rutin" style={{display:'flex', alignItems:'center', justifyContent:'space-between', background:'#f0f9ff', color:'#0369a1', border:'1px solid #bae6fd', borderLeft:'4px solid #0284c7', padding:'7px 12px', borderRadius:'6px 6px 0 0', fontWeight:'800', fontSize:'11px', letterSpacing:'0.5px', textTransform:'uppercase'}}>
+                      <span style={{display:'flex', alignItems:'center', gap:'6px'}}>📋 2. GÜNLÜK DEVRİYE VE RUTİN İŞLER</span>
+                      <span style={{fontSize:'10px', background:'#e0f2fe', color:'#0284c7', border:'1px solid #7dd3fc', padding:'2px 8px', borderRadius:'4px', fontWeight:'700'}}>{rutinItems.length} KAYIT</span>
+                    </div>
+                    <div style={{border:'1px solid #e2e8f0', borderTop:'none', borderRadius:'0 0 6px 6px', overflow:'hidden'}}>
+                      <table className="report-table" style={{width:'100%', tableLayout:'fixed', borderCollapse:'collapse', fontSize:'12px'}}>
+                        <colgroup>
+                          <col style={{width:'26px'}} />
+                          <col style={{width:'auto'}} />
+                          <col style={{width:'100px'}} />
+                          <col style={{width:'90px'}} />
+                          <col style={{width:'75px'}} />
+                          <col style={{width:'70px'}} />
+                          <col style={{width:'90px'}} />
+                        </colgroup>
+                        <thead>
+                          <tr style={{background:'#f8fafc', color:'#475569', borderBottom:'1px solid #cbd5e1'}}>
+                            <th style={{padding:'7px 6px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', textAlign:'center', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>#</th>
+                            <th style={{padding:'7px 10px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Rutin Görev / Kontrol</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Kategori</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Bölge / Ekipman</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Tür</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Periyot</th>
+                            <th style={{padding:'7px 8px', fontWeight:'700', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap', overflow:'hidden', color:'#475569'}}>Durum</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rutinItems.map((item, index) => (
+                            <tr key={item.id} className={index % 2 !== 0 ? 'stripe-row' : ''} style={{background: index % 2 !== 0 ? '#f8fafc' : 'white', borderBottom:'1px solid #f1f5f9'}}>
+                              <td style={{padding:'7px 6px', textAlign:'center', color:'#94a3b8', fontWeight:'600', whiteSpace:'nowrap', overflow:'hidden'}}>{index + 1}</td>
+                              <td className="cell-title" style={{padding:'7px 10px', color:'#0f172a', fontWeight:'700', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.title}</td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>
+                                {item.recordType === 'AYLIK_RUTIN' ? 'Aylık Rutin' : 'Günlük Devriye'}
+                              </td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Tesis Geneli</td>
+                              <td style={{padding:'7px 8px', color:'#0284c7', fontWeight:'700', textTransform:'uppercase', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                RUTİN
+                              </td>
+                              <td style={{padding:'7px 8px', color:'#475569', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                {item.recordType === 'AYLIK_RUTIN' ? 'Aylık Tur' : 'Günlük Tur'}
+                              </td>
+                              <td style={{padding:'7px 8px', whiteSpace:'nowrap', overflow:'hidden'}}>
+                                <span style={{fontWeight:'700', color: item.status === 'Bekliyor' ? '#d97706' : item.status === 'İşlemde' ? '#2563eb' : '#059669'}}>
+                                  {item.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                          {rutinItems.length === 0 && (
+                            <tr>
+                              <td colSpan={7} style={{padding:'14px', textAlign:'center', color:'#94a3b8', fontStyle:'italic', fontSize:'11px'}}>Bu tarihe ait kayıtlı günlük rutin veya devriye bulunmamaktadır.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Signatures */}
+                  <div className="flex justify-between items-start mt-6 pt-2 pb-2">
+                    <div>
+                      <div className="font-bold text-slate-800 text-[11px]">Teknik Sorumlu</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">Serdar DOĞRUER</div>
+                      <div className="mt-4 border-b border-slate-300 w-40"></div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-slate-800 text-[11px]">Site Müdürü</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">Saliha ERCAN</div>
+                      <div className="mt-4 border-b border-slate-300 w-40 ml-auto"></div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
     </div>
   );
