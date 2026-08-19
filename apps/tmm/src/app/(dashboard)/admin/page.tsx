@@ -80,6 +80,13 @@ export default async function AdminDashboardPage() {
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-3 relative z-10">
           <Link
+            href="/admin/management-requests"
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600/80 to-indigo-600/80 hover:from-blue-600 hover:to-indigo-600 text-white text-xs font-semibold shadow-lg shadow-blue-950/40 border border-blue-500/30 flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Yönetim Masası</span>
+          </Link>
+          <Link
             href="/admin/faults"
             className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600/80 to-orange-600/80 hover:from-red-600 hover:to-orange-600 text-white text-xs font-semibold shadow-lg shadow-red-950/40 border border-red-500/30 flex items-center gap-2 transition-all cursor-pointer"
           >
