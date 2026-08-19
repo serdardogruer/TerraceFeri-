@@ -18,7 +18,9 @@ async function deploy() {
     set -e
     echo "📥 1/4 Son kodlar GitHub/Depodan çekiliyor..."
     cd /var/www/terraceferi
-    git pull origin main || true
+    git fetch origin main
+    git reset --hard origin/main
+
 
     cd /var/www/terraceferi/apps/tmm
     echo "📦 2/4 Veritabanı tabloları ve Prisma güncelleniyor..."
