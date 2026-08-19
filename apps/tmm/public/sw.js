@@ -1,5 +1,5 @@
 // TerraceFeri Service Worker
-const CACHE_NAME = 'terraceferi-v1';
+const CACHE_NAME = 'terraceferi-v2';
 const STATIC_ASSETS = [
   '/',
   '/admin',
