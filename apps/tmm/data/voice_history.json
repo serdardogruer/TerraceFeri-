@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "vh-1786897067129",
+    "command": "Bugünkü elektrik sayaçlarını gir",
+    "response": "✅ 2026-08-16 tarihli sayaç endeksleri kaydedildi:\nElektrik: 0",
+    "time": "19:17",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897067129,
+    "success": true
+  },
+  {
+    "id": "vh-1786897103969",
+    "command": "Bugünkü elektrik sayaçların hepsini geri elektrik ve su doğalgaz hepsini gir",
+    "response": "✅ 2026-08-16 tarihli sayaç endeksleri kaydedildi:\nDoğalgaz: 0",
+    "time": "19:18",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897103969,
+    "success": true
+  },
+  {
+    "id": "vh-1786897262507",
+    "command": "havuz 1 Motoru arızalı arızalara gir",
+    "response": "✅ \"havuz 1 Motoru arızalı arızalara gir\" arıza kaydı veritabanında başarıyla oluşturuldu!",
+    "time": "19:21",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897262507,
+    "success": true
+  },
+  {
+    "id": "vh-1786897307303",
+    "command": "havuz 1 motoru arızalıydı onu tamamlandı yapıldı arızası tamama yap",
+    "response": "✅ **1 adet arıza kaydı** başarıyla \"Tamamlandı\" durumuna getirildi!\n(havuz 1 Motoru arızalı arızalara gir)",
+    "time": "19:21",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897307303,
+    "success": true
+  },
+  {
+    "id": "vh-1786897359934",
+    "command": "günlük rutin işlerin hepsi tamamlandı bunu Tamam yap",
+    "response": "✅ Bugünkü **9 adet Günlük Rutin işlemi** başarıyla \"Tamamlandı\" olarak güncellendi!\n(Kazan Dairesi Kontrol Edildi, Su Dükkan Değerleri Okundu, Doğalgaz Değeri Okundu ve 6 diğer işlem)",
+    "time": "19:22",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897359934,
+    "success": true
+  }
+]

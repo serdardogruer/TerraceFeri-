@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ApiClient } from '@/lib/api-client';
 import { Plus, X, Settings, Wrench, Edit, Trash2, MapPin, Search, ChevronRight, AlertTriangle } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Equipment {
   id: string;
@@ -23,7 +24,10 @@ interface Area {
 }
 
 export default function EquipmentsPage() {
+  const { canCreate, canEdit, canDelete, isSuperAdmin } = useUserPermissions('equipments');
   const [equipments, setEquipments] = useState<Equipment[]>([]);
+
+
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,6 +151,10 @@ export default function EquipmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu ekipmanı silmek istediğinize emin misiniz? Arıza kayıtları da etkilenecektir.')) return;
     try {
       const res = await fetch(`/api/equipments?id=${id}`, { method: 'DELETE' });
@@ -157,6 +165,7 @@ export default function EquipmentsPage() {
       console.error('Failed to delete equipment', error);
     }
   };
+
 
   const getAreaName = (areaId: string | null) => {
     if (!areaId) return 'Alansız (Bağımsız)';
@@ -227,14 +236,17 @@ export default function EquipmentsPage() {
             <button className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
               Yönetim Raporu Al (A4 PDF)
             </button>
-            <button
-              onClick={() => openModal()}
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Yeni Ekipman Ekle
-            </button>
+            {canCreate && (
+              <button
+                onClick={() => openModal()}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Yeni Ekipman Ekle
+              </button>
+            )}
           </div>
+
         </div>
 
         {/* Search and Type Tabs Container */}
@@ -351,37 +363,42 @@ export default function EquipmentsPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 ml-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(eq);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Düzenle"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(eq);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Düzenle"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(eq.id);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Sil"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(eq.id);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Sil"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
 
                   <Link
                     href={`/admin/equipments/${eq.id}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
+                    className="p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
                     title="Ekipman Detayına Git"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
+
               </div>
             </div>
           ))
@@ -482,13 +499,16 @@ export default function EquipmentsPage() {
               </div>
 
               <div className="pt-6 flex items-center justify-end space-x-3">
-                <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-transparent text-xs font-semibold text-slate-400 hover:text-white transition-colors">
+                <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-transparent text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer">
                   İptal
                 </button>
-                <button type="submit" className="px-6 py-2.5 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-xs font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-cyan-500/10">
-                  {editingId ? 'Değişiklikleri Kaydet' : 'Ekipmanı Kaydet'}
-                </button>
+                {((editingId && canEdit) || (!editingId && canCreate)) && (
+                  <button type="submit" className="px-6 py-2.5 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-xs font-bold rounded-md transition-colors whitespace-nowrap shadow-lg shadow-cyan-500/10 cursor-pointer">
+                    {editingId ? 'Değişiklikleri Kaydet' : 'Ekipmanı Kaydet'}
+                  </button>
+                )}
               </div>
+
             </form>
           </div>
         </div>

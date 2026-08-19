@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { ApiClient } from '@/lib/api-client';
 import { Plus, X, MapPin, Edit, Trash2, ChevronRight, Layers, Settings, Wrench, Search, Building } from 'lucide-react';
 import Link from 'next/link';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Area {
   id: string;
@@ -29,7 +30,10 @@ interface Equipment {
 }
 
 export default function AreasPage() {
+  const { canCreate, canEdit, canDelete, isSuperAdmin } = useUserPermissions('areas');
   const [areas, setAreas] = useState<Area[]>([]);
+
+
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -199,6 +203,10 @@ export default function AreasPage() {
   };
 
   const handleAreaDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu alanı silmek istediğinize emin misiniz? Alt alanlar da etkilenebilir.')) return;
     try {
       const res = await fetch(`/api/areas?id=${id}`, { method: 'DELETE' });
@@ -211,6 +219,10 @@ export default function AreasPage() {
   };
 
   const handleEqDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu ekipmanı silmek istediğinize emin misiniz?')) return;
     try {
       const res = await fetch(`/api/equipments?id=${id}`, { method: 'DELETE' });
@@ -221,6 +233,7 @@ export default function AreasPage() {
       console.error('Failed to delete equipment', error);
     }
   };
+
 
   const areaCategories = ['Genel Alan', 'Bina / Blok', 'Sosyal Tesis', 'Otopark', 'Kat'];
 
@@ -296,34 +309,38 @@ export default function AreasPage() {
 
             {/* Actions */}
             <div className="flex items-center gap-2 ml-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openAreaModal(area);
-                }}
-                className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                title="Düzenle"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
+              {canEdit && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openAreaModal(area);
+                  }}
+                  className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                  title="Düzenle"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAreaDelete(area.id);
-                }}
-                className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                title="Sil"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              {canDelete && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAreaDelete(area.id);
+                  }}
+                  className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                  title="Sil"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
 
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpandedAreaId(isExpanded ? null : area.id);
                 }}
-                className={`p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-transform flex items-center justify-center w-10 h-10 ${
+                className={`p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-transform flex items-center justify-center w-10 h-10 cursor-pointer ${
                   isExpanded ? 'rotate-90 text-purple-400 border-purple-500/40' : ''
                 }`}
                 title="Alt Alanları ve Ekipmanları Gör"
@@ -344,12 +361,14 @@ export default function AreasPage() {
                   <Layers className="w-3.5 h-3.5 mr-1.5 text-purple-400" />
                   {area.name} - Alt Alanları ({children.length})
                 </h4>
-                <button
-                  onClick={() => openAreaModal(undefined, area.id)}
-                  className="px-3 py-1 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-[11px] font-bold rounded-lg transition-colors flex items-center"
-                >
-                  <Plus className="w-3 h-3 mr-1" /> Alt Alan Ekle
-                </button>
+                {canCreate && (
+                  <button
+                    onClick={() => openAreaModal(undefined, area.id)}
+                    className="px-3 py-1 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-[11px] font-bold rounded-lg transition-colors flex items-center cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Alt Alan Ekle
+                  </button>
+                )}
               </div>
 
               {children.length > 0 ? (
@@ -370,12 +389,14 @@ export default function AreasPage() {
                   <Wrench className="w-3.5 h-3.5 mr-1.5 text-cyan-400" />
                   {area.name} - Ekipmanları & Cihazları ({areaEquipments.length})
                 </h4>
-                <button
-                  onClick={() => openEqModal(area.id)}
-                  className="px-3 py-1 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-[11px] font-bold rounded-lg transition-colors flex items-center"
-                >
-                  <Plus className="w-3 h-3 mr-1" /> Ekipman Ekle
-                </button>
+                {canCreate && (
+                  <button
+                    onClick={() => openEqModal(area.id)}
+                    className="px-3 py-1 bg-cyan-900/10 border border-cyan-500/40 hover:bg-cyan-900/30 text-cyan-300 text-[11px] font-bold rounded-lg transition-colors flex items-center cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Ekipman Ekle
+                  </button>
+                )}
               </div>
 
               {areaEquipments.length > 0 ? (
@@ -391,26 +412,31 @@ export default function AreasPage() {
                           <h5 className="text-xs font-bold text-white truncate max-w-[150px]">{eq.name}</h5>
                         </div>
                         <div className="flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => openEqModal(area.id, eq)}
-                            className="p-1.5 bg-blue-900/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-900/40"
-                            title="Düzenle"
-                          >
-                            <Edit className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => handleEqDelete(eq.id)}
-                            className="p-1.5 bg-red-900/20 text-red-400 border border-red-500/30 rounded hover:bg-red-900/40"
-                            title="Sil"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() => openEqModal(area.id, eq)}
+                              className="p-1.5 bg-blue-900/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-900/40 cursor-pointer"
+                              title="Düzenle"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              onClick={() => handleEqDelete(eq.id)}
+                              className="p-1.5 bg-red-900/20 text-red-400 border border-red-500/30 rounded hover:bg-red-900/40 cursor-pointer"
+                              title="Sil"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center justify-between text-[11px] mt-1">
                         <span className="text-cyan-400/90 font-mono font-bold">{eq.code || '-'}</span>
                         <span className="px-2 py-0.5 bg-cyan-900/20 text-cyan-400 border border-cyan-500/20 rounded font-semibold text-[10px]">
                           {eq.type}
+
                         </span>
                       </div>
                     </div>
@@ -454,14 +480,17 @@ export default function AreasPage() {
             <button className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
               Yönetim Raporu Al (A4 PDF)
             </button>
-            <button
-              onClick={() => openAreaModal()}
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Yeni Alan Ekle
-            </button>
+            {canCreate && (
+              <button
+                onClick={() => openAreaModal()}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Yeni Alan Ekle
+              </button>
+            )}
           </div>
+
         </div>
 
         {/* Search and Category Tabs */}

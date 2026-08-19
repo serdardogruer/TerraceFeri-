@@ -1,6 +1,6 @@
 /**
- * TerraceFeri - Local Database Export Script
- * Exports all records across all 7 Prisma modules into a consolidated JSON dump.
+ * TerraceFeri - Local/Remote Database Export Script
+ * Exports all records across all 9 Prisma modules into a consolidated JSON dump.
  */
 
 const fs = require('fs');
@@ -35,43 +35,44 @@ const { PrismaClient: CompanyClient } = require('@prisma-clients/company');
 const { PrismaClient: EquipmentClient } = require('@prisma-clients/equipment');
 const { PrismaClient: FaultClient } = require('@prisma-clients/fault');
 const { PrismaClient: PersonnelClient } = require('@prisma-clients/personnel');
+const { PrismaClient: ManagementClient } = require('@prisma-clients/management');
+const { PrismaClient: MeterClient } = require('@prisma-clients/meter');
 
-const coreDb = new CoreClient({ datasources: { db: { url: process.env.CORE_DATABASE_URL || process.env.DATABASE_URL } } });
-const areaDb = new AreaClient({ datasources: { db: { url: process.env.AREA_DATABASE_URL || process.env.DATABASE_URL } } });
-const apartmentDb = new ApartmentClient({ datasources: { db: { url: process.env.APARTMENT_DATABASE_URL || process.env.DATABASE_URL } } });
-const companyDb = new CompanyClient({ datasources: { db: { url: process.env.COMPANY_DATABASE_URL || process.env.DATABASE_URL } } });
-const equipmentDb = new EquipmentClient({ datasources: { db: { url: process.env.EQUIPMENT_DATABASE_URL || process.env.DATABASE_URL } } });
-const faultDb = new FaultClient({ datasources: { db: { url: process.env.FAULT_DATABASE_URL || process.env.DATABASE_URL } } });
-const personnelDb = new PersonnelClient({ datasources: { db: { url: process.env.PERSONNEL_DATABASE_URL || process.env.DATABASE_URL } } });
+const defaultUrl = process.env.DATABASE_URL || 'postgresql://terraceferi_user:Srdrdgrr1213.@127.0.0.1:5432/terraceferi?schema=public';
+
+const coreDb = new CoreClient({ datasources: { db: { url: process.env.CORE_DATABASE_URL || defaultUrl } } });
+const areaDb = new AreaClient({ datasources: { db: { url: process.env.AREA_DATABASE_URL || defaultUrl } } });
+const apartmentDb = new ApartmentClient({ datasources: { db: { url: process.env.APARTMENT_DATABASE_URL || defaultUrl } } });
+const companyDb = new CompanyClient({ datasources: { db: { url: process.env.COMPANY_DATABASE_URL || defaultUrl } } });
+const equipmentDb = new EquipmentClient({ datasources: { db: { url: process.env.EQUIPMENT_DATABASE_URL || defaultUrl } } });
+const faultDb = new FaultClient({ datasources: { db: { url: process.env.FAULT_DATABASE_URL || defaultUrl } } });
+const personnelDb = new PersonnelClient({ datasources: { db: { url: process.env.PERSONNEL_DATABASE_URL || defaultUrl } } });
+const managementDb = new ManagementClient({ datasources: { db: { url: process.env.MANAGEMENT_DATABASE_URL || defaultUrl } } });
+const meterDb = new MeterClient({ datasources: { db: { url: process.env.METER_DATABASE_URL || defaultUrl } } });
 
 async function exportAll() {
-  console.log('🔄 Yerel veritabanları taranıyor ve dışa aktarılıyor...\n');
+  console.log('🔄 Veritabanları taranıyor ve dışa aktarılıyor...\n');
   const dump = {
     exportedAt: new Date().toISOString(),
-    core: {
-      users: [],
-    },
-    area: {
-      areas: [],
-    },
-    apartment: {
-      apartments: [],
-    },
-    company: {
-      companies: [],
-    },
-    equipment: {
-      equipments: [],
-    },
-    fault: {
-      faultRecords: [],
-    },
+    core: { users: [] },
+    area: { areas: [] },
+    apartment: { apartments: [] },
+    company: { companies: [] },
+    equipment: { equipments: [] },
+    fault: { faultRecords: [] },
     personnel: {
       personnel: [],
       personnelDevices: [],
       timesheetLogs: [],
       locationSettings: [],
     },
+    management: {
+      managementRequests: [],
+    },
+    meter: {
+      meters: [],
+      readings: [],
+    }
   };
 
   try {
@@ -99,6 +100,13 @@ async function exportAll() {
     dump.personnel.timesheetLogs = await personnelDb.timesheetLog.findMany().catch((e) => { console.warn('Timesheet error:', e.message); return []; });
     console.log(`✅ Personnel: ${dump.personnel.personnel.length} personel, ${dump.personnel.locationSettings.length} konum ayarı`);
 
+    dump.management.managementRequests = await managementDb.managementRequest.findMany().catch((e) => { console.warn('ManagementRequest error:', e.message); return []; });
+    console.log(`✅ Management: ${dump.management.managementRequests.length} yönetim talebi/duyurusu`);
+
+    dump.meter.meters = await meterDb.meter.findMany().catch((e) => { console.warn('Meter error:', e.message); return []; });
+    dump.meter.readings = await meterDb.meterReading.findMany().catch((e) => { console.warn('MeterReading error:', e.message); return []; });
+    console.log(`✅ Meter: ${dump.meter.meters.length} sayaç, ${dump.meter.readings.length} sayaç okuma kaydı`);
+
     const dataDir = path.join(__dirname, '../data');
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
@@ -117,8 +125,14 @@ async function exportAll() {
     await equipmentDb.$disconnect().catch(() => {});
     await faultDb.$disconnect().catch(() => {});
     await personnelDb.$disconnect().catch(() => {});
-    process.exit(0);
+    await managementDb.$disconnect().catch(() => {});
+    await meterDb.$disconnect().catch(() => {});
+    if (require.main === module) process.exit(0);
   }
 }
 
-exportAll();
+module.exports = { exportAll };
+
+if (require.main === module) {
+  exportAll();
+}

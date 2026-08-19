@@ -7,8 +7,12 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get('type');
     const search = searchParams.get('search')?.toLowerCase();
 
-    let filtered = [...MetersDB.getReadings()];
-    const meters = MetersDB.getMeters();
+    const [allReadings, meters] = await Promise.all([
+      MetersDB.getReadings(),
+      MetersDB.getMeters()
+    ]);
+
+    let filtered = [...allReadings];
 
     if (type && type !== 'Hepsi') {
       filtered = filtered.filter(m => m.type.toLowerCase() === type.toLowerCase());
@@ -45,8 +49,10 @@ export async function POST(req: NextRequest) {
     const readDate = body.readDate || now.toISOString().split('T')[0];
     const readTime = body.readTime || now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-    const meters = MetersDB.getMeters();
-    const allReadings = MetersDB.getReadings();
+    const [meters, allReadings] = await Promise.all([
+      MetersDB.getMeters(),
+      MetersDB.getReadings()
+    ]);
 
     let selectedMeter = meters.find(m => m.id === body.meterId);
     if (!selectedMeter) {
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
       notes: body.notes || 'Günlük okuma kaydı'
     };
 
-    const saved = MetersDB.addOrUpdateReading(newReading);
+    const saved = await MetersDB.addOrUpdateReading(newReading);
     return NextResponse.json({ success: true, data: saved });
   } catch (error) {
     console.error('Error creating meter reading:', error);
@@ -92,7 +98,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'ID is required' }, { status: 400 });
     }
 
-    const allReadings = MetersDB.getReadings();
+    const allReadings = await MetersDB.getReadings();
     const current = allReadings.find(m => m.id === body.id);
     
     if (!current) {
@@ -119,7 +125,7 @@ export async function PUT(req: NextRequest) {
       notes: body.notes !== undefined ? body.notes : current.notes,
     };
 
-    const saved = MetersDB.addOrUpdateReading(updated);
+    const saved = await MetersDB.addOrUpdateReading(updated);
     return NextResponse.json({ success: true, data: saved });
   } catch (error) {
     console.error('Error updating meter reading:', error);
@@ -136,7 +142,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'ID is required' }, { status: 400 });
     }
 
-    const ok = MetersDB.deleteReading(id);
+    const ok = await MetersDB.deleteReading(id);
     return NextResponse.json({ success: ok, message: ok ? 'Deleted successfully' : 'Not found' });
   } catch (error) {
     console.error('Error deleting meter reading:', error);

@@ -7,6 +7,7 @@ import {
   Printer, Zap, Flame, Droplets, ChevronLeft, ChevronRight,
   Sparkles, RefreshCw
 } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface MeterReading {
   id: string;
@@ -46,7 +47,9 @@ function getRandomReportCode(): string {
 }
 
 export default function MetersPage() {
+  const { canCreate, canEdit, canDelete, canExport, isSuperAdmin } = useUserPermissions('meters');
   const [readings, setReadings] = useState<MeterReading[]>([]);
+
   const [meters, setMeters] = useState<Meter[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('');
@@ -813,37 +816,44 @@ export default function MetersPage() {
         {/* Right: Actions */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Pazar Günlerini Otomatik Doldur */}
-          <button 
-            onClick={handleAutoFillSundays}
-            disabled={isAutoFilling}
-            className="px-4 py-2.5 bg-purple-950/30 border border-purple-500/50 hover:bg-purple-900/40 text-purple-300 hover:text-purple-200 text-xs font-semibold rounded-lg transition-colors flex items-center shadow-sm cursor-pointer disabled:opacity-50"
-            title="Önceki günlerin günlük tüketim ortalamasına göre Pazar günlerini otomatik hesaplayıp girer"
-          >
-            {isAutoFilling ? (
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin text-purple-400" />
-            ) : (
-              <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
-            )}
-            Pazar Günlerini Otomatik Doldur
-          </button>
+          {canCreate && (
+            <button 
+              onClick={handleAutoFillSundays}
+              disabled={isAutoFilling}
+              className="px-4 py-2.5 bg-purple-950/30 border border-purple-500/50 hover:bg-purple-900/40 text-purple-300 hover:text-purple-200 text-xs font-semibold rounded-lg transition-colors flex items-center shadow-sm cursor-pointer disabled:opacity-50"
+              title="Önceki günlerin günlük tüketim ortalamasına göre Pazar günlerini otomatik hesaplayıp girer"
+            >
+              {isAutoFilling ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin text-purple-400" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
+              )}
+              Pazar Günlerini Otomatik Doldur
+            </button>
+          )}
 
           {/* Yazdır / PDF */}
-          <button 
-            onClick={openReportModal}
-            className="px-4 py-2.5 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors flex items-center shadow-sm cursor-pointer"
-          >
-            <Printer className="w-4 h-4 mr-2" /> Yazdır / PDF
-          </button>
+          {canExport && (
+            <button 
+              onClick={openReportModal}
+              className="px-4 py-2.5 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors flex items-center shadow-sm cursor-pointer"
+            >
+              <Printer className="w-4 h-4 mr-2" /> Yazdır / PDF
+            </button>
+          )}
 
           {/* Günlük Değer Gir */}
-          <button 
-            onClick={() => openDayEntryModal(todayStr)}
-            className="px-5 py-2.5 bg-amber-950/30 border border-amber-500/60 hover:bg-amber-900/40 text-amber-400 text-xs font-bold rounded-lg transition-colors shadow-lg shadow-amber-500/10 flex items-center cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-2" /> Günlük Değer Gir
-          </button>
+          {canCreate && (
+            <button 
+              onClick={() => openDayEntryModal(todayStr)}
+              className="px-5 py-2.5 bg-amber-950/30 border border-amber-500/60 hover:bg-amber-900/40 text-amber-400 text-xs font-bold rounded-lg transition-colors shadow-lg shadow-amber-500/10 flex items-center cursor-pointer"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Günlük Değer Gir
+            </button>
+          )}
         </div>
       </div>
+
 
       {/* Auto-Fill Banner / Notification */}
       {autoFillMsg && (
@@ -977,10 +987,13 @@ export default function MetersPage() {
                     <th colSpan={2} className="py-2 px-2.5 border-r border-slate-700 uppercase tracking-wider text-teal-300 bg-teal-500/10">
                       SU DÜKKANLAR
                     </th>
-                    <th rowSpan={2} className="py-3 px-2 uppercase tracking-wider text-slate-400 w-16">
-                      İŞLEM
-                    </th>
+                    {canEdit && (
+                      <th rowSpan={2} className="py-3 px-2 uppercase tracking-wider text-slate-400 w-16">
+                        İŞLEM
+                      </th>
+                    )}
                   </tr>
+
 
                   {/* Sub Header */}
                   <tr className="bg-[#080d18] text-slate-300 border-b border-slate-700 text-[10px] font-bold">
@@ -1334,15 +1347,17 @@ export default function MetersPage() {
                         </td>
 
                         {/* Action: Quick Day Entry */}
-                        <td className="py-2 px-2 text-center">
-                          <button
-                            onClick={() => openDayEntryModal(dateStr)}
-                            className="p-1.5 bg-transparent border border-slate-700 hover:border-amber-500/50 hover:bg-amber-950/20 text-slate-400 hover:text-amber-400 rounded-lg transition-colors cursor-pointer"
-                            title="Tüm sayaçları bu gün için düzenle / gir"
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
+                        {canEdit && (
+                          <td className="py-2 px-2 text-center">
+                            <button
+                              onClick={() => openDayEntryModal(dateStr)}
+                              className="p-1.5 bg-transparent border border-slate-700 hover:border-amber-500/50 hover:bg-amber-950/20 text-slate-400 hover:text-amber-400 rounded-lg transition-colors cursor-pointer"
+                              title="Tüm sayaçları bu gün için düzenle / gir"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        )}
 
                       </tr>
                     );
@@ -1407,9 +1422,11 @@ export default function MetersPage() {
                     <td className="py-3 px-1 border-r border-slate-700 text-right text-teal-400 font-extrabold bg-teal-500/10 w-14">
                       {monthlySummary.hasData ? `+${monthlySummary.suDukDiff}` : '-'}
                     </td>
-                    <td className="py-3 px-2 text-center text-amber-400 font-mono font-bold text-[11px]">
-                      {monthlySummary.hasData ? `${monthlySummary.totalCurrentCost.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} ₺` : '-'}
-                    </td>
+                    {canEdit && (
+                      <td className="py-3 px-2 text-center text-amber-400 font-mono font-bold text-[11px]">
+                        {monthlySummary.hasData ? `${monthlySummary.totalCurrentCost.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} ₺` : '-'}
+                      </td>
+                    )}
                   </tr>
 
                   {/* 2. AY SONU TAHMİNİ GELECEK FATURA (TL) */}
@@ -1438,11 +1455,14 @@ export default function MetersPage() {
                     <td className="py-2.5 px-1 border-r border-slate-700 text-right text-teal-300 font-mono font-black bg-teal-500/10">
                       {monthlySummary.hasData ? `${monthlySummary.suDukProjectedCost.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} ₺` : '-'}
                     </td>
-                    <td className="py-2.5 px-2 text-center text-emerald-400 font-mono font-black text-[12px] bg-emerald-950/40 border-l border-emerald-500/30">
-                      {monthlySummary.hasData ? `${monthlySummary.totalProjectedCost.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} ₺` : '-'}
-                    </td>
+                    {canEdit && (
+                      <td className="py-2.5 px-2 text-center text-emerald-400 font-mono font-black text-[12px] bg-emerald-950/40 border-l border-emerald-500/30">
+                        {monthlySummary.hasData ? `${monthlySummary.totalProjectedCost.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} ₺` : '-'}
+                      </td>
+                    )}
                   </tr>
                 </tfoot>
+
 
               </table>
             </div>

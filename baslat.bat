@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul 2>&1
-title TerraceFeri - Yonetim Sistemi
+title TerraceFeri - Rezidans Yonetim Sistemi
 
 echo.
 echo  ================================================
@@ -22,7 +22,7 @@ if not exist "apps\tmm" (
 
 cd apps\tmm
 
-:: Node.js yuklu mu?
+:: Node.js kontrolu
 where node >nul 2>&1
 if errorlevel 1 (
     echo  [HATA] Node.js bulunamadi!
@@ -32,7 +32,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: node_modules var mi?
+:: node_modules kontrolu
 if not exist "node_modules" (
     echo  [BILGI] node_modules bulunamadi. npm install calistiriliyor...
     echo.
@@ -47,57 +47,24 @@ if not exist "node_modules" (
     echo.
 )
 
-:: Prisma client'lari olustur (her zaman - kalici cozum)
-echo  [BILGI] Prisma client'lari olusturuluyor...
+:: Eski takili kalan 3005 portu varsa otomatik temizle
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3005 " ^| findstr "LISTENING"') do (
+    echo  [BILGI] Port 3005 uzerindeki eski oturum kapatiliyor (PID: %%a)...
+    taskkill /f /pid %%a >nul 2>&1
+)
+
+:: 9 Modullu Birlesik Prisma Client'lari Olustur
+echo  [BILGI] 9 Modullu Prisma Client'lari hazirlaniyor...
 echo.
-
-call npx prisma generate --schema=modules/core/database/schema.prisma
+call npx prisma generate --schema=prisma/schema.prisma
 if errorlevel 1 (
-    echo  [UYARI] Core Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/area/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Area Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/apartment/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Apartment Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/company/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Company Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/equipment/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Equipment Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/fault/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Fault Prisma client olusturulamadi!
-)
-
-call npx prisma generate --schema=modules/personnel/database/schema.prisma
-if errorlevel 1 (
-    echo  [UYARI] Personnel Prisma client olusturulamadi!
-)
-
-echo.
-echo  [OK] Tum Prisma client'lari hazir!
-echo.
-
-:: Port 3005 kullanimda mi?
-netstat -ano | findstr ":3005 " | findstr "LISTENING" >nul 2>&1
-if not errorlevel 1 (
-    echo  [UYARI] Port 3005 zaten kullanimda!
-    echo  Onceki sunucuyu kapatip tekrar deneyin.
-    echo  Veya farkli port ile baslatmak icin bir tusa basin...
     echo.
-    pause
+    echo  [UYARI] Prisma client olusturulurken bir sorun yasandi.
+    echo.
+) else (
+    echo.
+    echo  [OK] Tum 9 modül Prisma Client'i basariyla hazirlandi!
+    echo.
 )
 
 echo  ================================================

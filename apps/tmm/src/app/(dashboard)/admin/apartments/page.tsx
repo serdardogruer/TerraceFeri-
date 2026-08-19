@@ -6,6 +6,7 @@ import {
   Building, Plus, X, Edit, Trash2, Save, Car, Home, ChevronRight, Search, Wrench, AlertTriangle, CheckCircle2, Clock
 } from 'lucide-react';
 import Link from 'next/link';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Apartment {
   id: string;
@@ -23,7 +24,10 @@ interface Apartment {
 }
 
 export default function ApartmentsPage() {
+  const { canCreate, canEdit, canDelete, isSuperAdmin } = useUserPermissions('apartments');
   const [apartments, setApartments] = useState<Apartment[]>([]);
+
+
   const [faults, setFaults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,6 +254,10 @@ export default function ApartmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu daireyi silmek istediğinize emin misiniz?')) return;
 
     try {
@@ -261,6 +269,7 @@ export default function ApartmentsPage() {
       console.error('Failed to delete apartment', error);
     }
   };
+
 
   function formatTitleCase(str: string | undefined | null) {
     if (!str) return '-';
@@ -305,14 +314,17 @@ export default function ApartmentsPage() {
             <button className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
               Yönetim Raporu Al (A4 PDF)
             </button>
-            <button
-              onClick={() => openModal()}
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Yeni Daire Ekle
-            </button>
+            {canCreate && (
+              <button
+                onClick={() => openModal()}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Yeni Daire Ekle
+              </button>
+            )}
           </div>
+
         </div>
 
         {/* Search and Block Tabs Container */}
@@ -441,30 +453,35 @@ export default function ApartmentsPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 ml-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(apt);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Düzenle"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(apt.id);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Sil"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <button className="p-2.5 bg-[#070A11] border border-purple-900/50 text-purple-400 hover:bg-purple-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10">
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(apt);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Düzenle"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(apt.id);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Sil"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button className="p-2.5 bg-[#070A11] border border-purple-900/50 text-purple-400 hover:bg-purple-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
+
               </div>
             </div>
           ))
@@ -632,19 +649,22 @@ export default function ApartmentsPage() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
                 İptal
               </button>
-              <button
-                type="submit"
-                form="apartmentForm"
-                className="flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-              >
-                <Save className="w-4 h-4 mr-1.5" />
-                {editingId ? 'Güncelle' : 'Kaydet'}
-              </button>
+              {((editingId && canEdit) || (!editingId && canCreate)) && (
+                <button
+                  type="submit"
+                  form="apartmentForm"
+                  className="flex items-center justify-center px-5 py-2 bg-purple-900/10 border border-purple-500/40 hover:bg-purple-900/30 text-purple-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+                >
+                  <Save className="w-4 h-4 mr-1.5" />
+                  {editingId ? 'Güncelle' : 'Kaydet'}
+                </button>
+              )}
             </div>
+
 
           </div>
         </div>

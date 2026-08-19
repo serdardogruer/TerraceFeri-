@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
     const targetYear = body.year ? Number(body.year) : now.getFullYear();
     const targetMonth = body.month ? Number(body.month) : now.getMonth() + 1; // 1-12
 
-    const meters = MetersDB.getMeters();
-    let readings = MetersDB.getReadings();
+    const meters = await MetersDB.getMeters();
+    let readings = await MetersDB.getReadings();
 
     const elekMeter = meters.find(m => m.type === 'Elektrik') || { id: 'm-elek-main', meterNo: 'ELEK-ANA-01', type: 'Elektrik', unit: 'kWh' };
     const gasMeter = meters.find(m => m.type === 'Doğalgaz') || { id: 'm-gas-main', meterNo: 'GAS-ANA-01', type: 'Doğalgaz', unit: 'm³' };
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
 
       // Save / Update to DB
       if (calcAktif > 0) {
-        MetersDB.addOrUpdateReading({
+        await MetersDB.addOrUpdateReading({
           id: `r-${sundayStr}-${elekMeter.id}`,
           meterId: elekMeter.id,
           meterNo: elekMeter.meterNo,
@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (calcGas > 0) {
-        MetersDB.addOrUpdateReading({
+        await MetersDB.addOrUpdateReading({
           id: `r-${sundayStr}-${gasMeter.id}`,
           meterId: gasMeter.id,
           meterNo: gasMeter.meterNo,
@@ -234,7 +234,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (calcSuDaire > 0) {
-        MetersDB.addOrUpdateReading({
+        await MetersDB.addOrUpdateReading({
           id: `r-${sundayStr}-${suDaireMeter.id}`,
           meterId: suDaireMeter.id,
           meterNo: suDaireMeter.meterNo,
@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (calcSuDuk > 0) {
-        MetersDB.addOrUpdateReading({
+        await MetersDB.addOrUpdateReading({
           id: `r-${sundayStr}-${suDukMeter.id}`,
           meterId: suDukMeter.id,
           meterNo: suDukMeter.meterNo,
@@ -280,10 +280,10 @@ export async function POST(req: NextRequest) {
       filledSundaysCount++;
       filledDates.push(sundayStr);
       // Refresh local readings list for consecutive Sundays
-      readings = MetersDB.getReadings();
+      readings = await MetersDB.getReadings();
     }
 
-    const updatedReadings = MetersDB.getReadings();
+    const updatedReadings = await MetersDB.getReadings();
     return NextResponse.json({
       success: true,
       filledCount: filledSundaysCount,

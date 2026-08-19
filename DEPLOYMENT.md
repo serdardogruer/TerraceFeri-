@@ -1,8 +1,26 @@
 # 🏢 TerraceFeri — Production Canlıya Alma ve Dağıtım Kılavuzu
 
-**Hedef Sunucu:** Vulut VDS (Ubuntu 24.04 LTS, Node.js 22.x, PM2, Nginx, PostgreSQL)  
-**Canlı Domain:** `terraceferi.codapi.site`  
-**Varsayılan Port:** `3000` (Host: `0.0.0.0`)  
+**Hedef Sunucu:** VDS (IP: `104.233.4.15`, SSH Port: `25416`, Kullanıcı: `root`, Ubuntu 24.04 LTS)  
+**Canlı Domain:** `https://terraceferi.codapi.site`  
+**Canlı Çalışma Modu:** Docker (`/opt/terraceferi`)  
+
+---
+
+## ⚡ Hızlı Komutlar (Tek Tıkla İşlemler)
+
+### 📥 Canlı Veritabanını & Sayaç Verilerini Lokale Çekme
+Lokal bilgisayarınızda canlıdaki tüm güncel arızaları, daireleri ve sayaçları görmek için:
+```bash
+cd apps/tmm
+npm run db:pull:live
+```
+
+### 🚀 Canlıya Yeni Kodları Yayınlama (Deploy)
+Lokalde geliştirilen özellikleri VDS sunucusuna derleyip yayınlamak için:
+```bash
+cd apps/tmm
+npm run deploy:vds
+```
 
 ---
 
@@ -14,7 +32,7 @@ cd apps/tmm
 npm run build
 ```
 Bu komut sırasıyla:
-1. `npm run prisma:generate` çalıştırarak 7 modüler Prisma Client'ı (`@prisma-clients/*`) derler.
+1. `npm run prisma:generate` çalıştırarak 9 modüler Prisma Client'ı (`@prisma-clients/*`) derler.
 2. Next.js 16 Turbopack optimizasyonlu production bundle'ını (`.next`) oluşturur.
 
 ---

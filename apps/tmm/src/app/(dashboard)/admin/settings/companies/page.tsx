@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, X, Briefcase, Phone, User, Trash2, Calendar, FileText, CheckSquare, Save, Search, ChevronRight, Edit } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Company {
   id: string;
@@ -20,7 +21,10 @@ interface Company {
 }
 
 export default function CompaniesPage() {
+  const { canCreate, canEdit, canDelete, isSuperAdmin } = useUserPermissions('companies');
   const [companies, setCompanies] = useState<Company[]>([]);
+
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Tümü');
@@ -137,6 +141,10 @@ export default function CompaniesPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu firmayı silmek istediğinize emin misiniz?')) return;
     try {
       const res = await fetch(`/api/companies?id=${id}`, { method: 'DELETE' });
@@ -148,6 +156,7 @@ export default function CompaniesPage() {
       console.error('Failed to delete company', error);
     }
   };
+
 
   function formatTitleCase(str: string | undefined | null) {
     if (!str) return '-';
@@ -208,14 +217,17 @@ export default function CompaniesPage() {
             <button className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
               Yönetim Raporu Al (A4 PDF)
             </button>
-            <button
-              onClick={() => openModal()}
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-indigo-900/10 border border-indigo-500/40 hover:bg-indigo-900/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Yeni Firma Ekle
-            </button>
+            {canCreate && (
+              <button
+                onClick={() => openModal()}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-indigo-900/10 border border-indigo-500/40 hover:bg-indigo-900/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Yeni Firma Ekle
+              </button>
+            )}
           </div>
+
         </div>
 
         {/* Search and Tabs Container */}
@@ -337,39 +349,44 @@ export default function CompaniesPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 ml-2">
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(company);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Düzenle"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(company.id);
+                      }}
+                      className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                      title="Sil"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openModal(company);
                     }}
-                    className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Düzenle"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(company.id);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                    title="Sil"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(company);
-                    }}
-                    className="p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
+                    className="p-2.5 bg-[#070A11] border border-[#151B2B] text-slate-400 hover:text-white hover:border-slate-700 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
                     title="Detayları Aç"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
+
               </div>
             </div>
           ))
@@ -386,12 +403,13 @@ export default function CompaniesPage() {
                 <h3 className="text-xl font-bold text-white flex items-center tracking-wide">
                   <Briefcase className="w-5 h-5 mr-3 text-indigo-500" /> {editingId ? 'Firma Detayları & Düzenle' : 'Yeni Firma Ekle'}
                 </h3>
-                {editingId && (
-                  <button onClick={() => handleDelete(editingId)} className="flex items-center px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/20 rounded-md transition-colors text-sm font-semibold" title="Firmayı Sil">
+                {editingId && canDelete && (
+                  <button onClick={() => handleDelete(editingId)} className="flex items-center px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/20 rounded-md transition-colors text-sm font-semibold cursor-pointer" title="Firmayı Sil">
                     <Trash2 className="w-4 h-4 mr-1.5" /> Sil
                   </button>
                 )}
               </div>
+
               <button onClick={closeModal} className="text-slate-500 hover:text-white transition-colors p-1.5 rounded-md hover:bg-slate-800">
                 <X className="w-4 h-4" />
               </button>
@@ -521,14 +539,17 @@ export default function CompaniesPage() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-800/80 bg-[#080b12] flex items-center justify-end space-x-3">
-              <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-slate-800/10 border border-slate-700/50 hover:bg-slate-800/30 text-sm font-semibold text-slate-400 hover:text-slate-300 rounded-lg transition-colors">
+              <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-slate-800/10 border border-slate-700/50 hover:bg-slate-800/30 text-sm font-semibold text-slate-400 hover:text-slate-300 rounded-lg transition-colors cursor-pointer">
                 İptal
               </button>
-              <button form="company-form" type="submit" className="flex items-center px-6 py-2.5 bg-indigo-900/10 border border-indigo-500/50 hover:bg-indigo-900/30 text-indigo-400 text-sm font-bold rounded-lg transition-colors shadow-lg">
-                <Save className="w-4 h-4 mr-2" />
-                {editingId ? 'Kaydet' : 'Firmayı Ekle'}
-              </button>
+              {((editingId && canEdit) || (!editingId && canCreate)) && (
+                <button form="company-form" type="submit" className="flex items-center px-6 py-2.5 bg-indigo-900/10 border border-indigo-500/50 hover:bg-indigo-900/30 text-indigo-400 text-sm font-bold rounded-lg transition-colors shadow-lg cursor-pointer">
+                  <Save className="w-4 h-4 mr-2" />
+                  {editingId ? 'Kaydet' : 'Firmayı Ekle'}
+                </button>
+              )}
             </div>
+
           </div>
         </div>
       )}

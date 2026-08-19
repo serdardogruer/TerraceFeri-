@@ -8,8 +8,10 @@ import {
   Share2, ShieldAlert, Sparkles, User, MapPin, Tag
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface MaterialItem {
+
   name: string;
   quantity: number;
   unit: string;
@@ -62,7 +64,10 @@ const LOCATIONS = [
 ];
 
 export default function ManagementRequestsPage() {
+  const { canCreate, canEdit, canDelete, canExport, isSuperAdmin } = useUserPermissions('management');
   const [requests, setRequests] = useState<ManagementRequest[]>([]);
+
+
   const [loading, setLoading] = useState(true);
   
   // Filters & Search
@@ -227,6 +232,10 @@ export default function ManagementRequestsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     if (!confirm('Bu talebi / bilgilendirmeyi silmek istediğinize emin misiniz?')) return;
     try {
       const res: any = await ApiClient.delete(`/api/management-requests?id=${id}`);
@@ -238,6 +247,7 @@ export default function ManagementRequestsPage() {
       console.error('Delete failed:', err);
     }
   };
+
 
   // Filtered requests
   const filteredRequests = useMemo(() => {
@@ -337,13 +347,16 @@ export default function ManagementRequestsPage() {
           </div>
 
           <div className="w-full sm:w-auto shrink-0">
-            <button 
-              onClick={() => openNewModal()}
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/40 text-indigo-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" /> Yeni Kayıt Ekle
-            </button>
+            {canCreate && (
+              <button 
+                onClick={() => openNewModal()}
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/40 text-indigo-300 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Yeni Kayıt Ekle
+              </button>
+            )}
           </div>
+
         </div>
 
         {/* Bottom Row: Filter Tabs & Search Bar */}
@@ -456,50 +469,57 @@ export default function ManagementRequestsPage() {
 
                     {/* Actions (OZEL_KURALLAR Uyumlu Şeffaf / Renkli Kenarlıklı Butonlar) */}
                     <div className="flex items-center gap-2 ml-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPrintItem(item);
-                        }}
-                        className="p-2.5 bg-transparent border border-slate-700/60 hover:border-slate-500 text-slate-300 hover:text-white rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                        title="Resmi Form (PDF / Yazdır)"
-                      >
-                        <Printer className="w-4 h-4" />
-                      </button>
+                      {canExport && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPrintItem(item);
+                          }}
+                          className="p-2.5 bg-transparent border border-slate-700/60 hover:border-slate-500 text-slate-300 hover:text-white rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                          title="Resmi Form (PDF / Yazdır)"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditModal(item);
-                        }}
-                        className="p-2.5 bg-blue-900/10 border border-blue-500/40 text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                        title="Düzenle"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
+                      {canEdit && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(item);
+                          }}
+                          className="p-2.5 bg-blue-900/10 border border-blue-500/40 text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                          title="Düzenle"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(item.id);
-                        }}
-                        className="p-2.5 bg-rose-900/10 border border-rose-500/40 text-rose-400 hover:bg-rose-900/30 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
-                        title="Sil"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {canDelete && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item.id);
+                          }}
+                          className="p-2.5 bg-rose-900/10 border border-rose-500/40 text-rose-400 hover:bg-rose-900/30 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
+                          title="Sil"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
 
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedId(isExpanded ? null : item.id);
                         }}
-                        className="p-2.5 bg-transparent border border-slate-700/60 text-slate-400 hover:text-white hover:border-slate-500 rounded-lg transition-colors flex items-center justify-center w-10 h-10"
+                        className="p-2.5 bg-transparent border border-slate-700/60 text-slate-400 hover:text-white hover:border-slate-500 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer"
                         title={isExpanded ? 'Detayları Gizle' : 'Detayları Göster'}
                       >
                         <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-90 text-indigo-400' : ''}`} />
                       </button>
                     </div>
+
                   </div>
 
                 </div>
@@ -580,16 +600,17 @@ export default function ManagementRequestsPage() {
                   </h3>
                   <p className="text-[11px] text-slate-400">Site Yönetimi onayına sunulacak kayıt</p>
                 </div>
-                {editingId && (
+                {editingId && canDelete && (
                   <button
                     type="button"
                     onClick={() => handleDelete(editingId)}
-                    className="ml-3 flex items-center px-3 py-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg text-xs font-semibold transition-colors"
+                    className="ml-3 flex items-center px-3 py-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5 mr-1" /> Sil
                   </button>
                 )}
               </div>
+
               <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
                 <X className="w-5 h-5" />
               </button>
@@ -833,18 +854,21 @@ export default function ManagementRequestsPage() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2 bg-transparent border border-slate-600/50 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 text-xs font-semibold rounded-lg transition-colors"
+                className="px-5 py-2 bg-transparent border border-slate-600/50 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
               >
                 İptal
               </button>
-              <button
-                form="mgmt-form"
-                type="submit"
-                className="flex items-center px-6 py-2 bg-indigo-900/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-900/40 text-xs font-bold rounded-lg transition-colors shadow-sm"
-              >
-                {editingId ? 'Güncelle' : 'Kaydet ve İlet'}
-              </button>
+              {((editingId && canEdit) || (!editingId && canCreate)) && (
+                <button
+                  form="mgmt-form"
+                  type="submit"
+                  className="flex items-center px-6 py-2 bg-indigo-900/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-900/40 text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+                >
+                  {editingId ? 'Güncelle' : 'Kaydet ve İlet'}
+                </button>
+              )}
             </div>
+
 
           </div>
         </div>

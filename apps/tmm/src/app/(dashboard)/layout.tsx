@@ -1,5 +1,4 @@
 import { Sidebar } from '@/components/layout/Sidebar';
-import { FloatingControls } from '@/components/layout/FloatingControls';
 
 export default function DashboardLayout({
   children,
@@ -14,7 +13,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
-      <FloatingControls />
     </div>
   );
 }
+

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Users, Clock, Search, Plus, Settings, X, ChevronRight, Phone, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Timesheet {
   id: string;
@@ -29,7 +30,10 @@ interface PersonnelListClientProps {
 }
 
 export default function PersonnelListClient({ initialPersonnel }: PersonnelListClientProps) {
+  const { canCreate, canEdit, canDelete, isSuperAdmin } = useUserPermissions('personnel');
   const [personnelList] = useState<PersonnelItem[]>(initialPersonnel);
+
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Tümü');
 
@@ -88,14 +92,17 @@ export default function PersonnelListClient({ initialPersonnel }: PersonnelListC
               <Settings className="w-4 h-4 mr-1.5 text-slate-400" />
               Vardiya Ayarları
             </Link>
-            <Link
-              href="/admin/personnel/new"
-              className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-orange-900/10 border border-orange-500/40 hover:bg-orange-900/30 text-orange-400 text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Yeni Personel Ekle
-            </Link>
+            {canCreate && (
+              <Link
+                href="/admin/personnel/new"
+                className="w-full sm:w-auto flex items-center justify-center px-5 py-2 bg-orange-900/10 border border-orange-500/40 hover:bg-orange-900/30 text-orange-400 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Yeni Personel Ekle
+              </Link>
+            )}
           </div>
+
         </div>
 
         {/* Search and Filter Tabs */}

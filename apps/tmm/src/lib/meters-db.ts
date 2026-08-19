@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { meterDb } from '@modules/meter/database/client';
 
 export interface Meter {
   id: string;
@@ -7,7 +6,7 @@ export interface Meter {
   name: string;
   type: string;
   unit: string;
-  location?: string;
+  location?: string | null;
 }
 
 export interface MeterReading {
@@ -16,7 +15,7 @@ export interface MeterReading {
   meterNo: string;
   type: string;
   unit: string;
-  location?: string;
+  location?: string | null;
   readDate: string;
   readTime: string;
   aktif: number;
@@ -28,127 +27,137 @@ export interface MeterReading {
   value: number;
   prevValue: number;
   status: string;
-  notes: string;
-}
-
-interface MetersDbData {
-  meters: Meter[];
-  readings: MeterReading[];
-}
-
-// Statik path — Turbopack bu yolu doğru şekilde analiz edebilir.
-// CWD her zaman apps/tmm dizini olduğundan tek bir path yeterlidir.
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'meters_data.json');
-
-function ensureDataFile(): MetersDbData {
-  // Dizin yoksa oluştur
-  if (!fs.existsSync(/*turbopackIgnore: true*/ DATA_DIR)) {
-    try {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    } catch {}
-  }
-
-  // Dosya varsa oku
-  if (fs.existsSync(/*turbopackIgnore: true*/ DATA_FILE)) {
-    try {
-      const content = fs.readFileSync(/*turbopackIgnore: true*/ DATA_FILE, 'utf-8');
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed.meters) && Array.isArray(parsed.readings)) {
-        return parsed;
-      }
-    } catch (e) {
-      console.error('Error reading meters_data.json:', e);
-    }
-  }
-
-  // Dosya yoksa başlangıç verisiyle oluştur
-  const initialData: MetersDbData = {
-    meters: [
-      { id: 'm-elek-main', meterNo: 'ELEK-ANA-01', name: 'Elektrik T1', type: 'Elektrik', unit: 'kWh' },
-      { id: 'm-gas-main', meterNo: 'GAS-ANA-01', name: 'Doğalgaz', type: 'Doğalgaz', unit: 'm³' },
-      { id: 'm-su-daire', meterNo: 'SU-DAIRE-01', name: 'Su Daireler', type: 'Su', unit: 'm³' },
-      { id: 'm-su-dukkan', meterNo: 'SU-DUKKAN-01', name: 'Su Dükkanlar', type: 'Su', unit: 'm³' },
-    ],
-    readings: [],
-  };
-
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
-  } catch (e) {
-    console.error('Error initializing meters_data.json:', e);
-  }
-
-  return initialData;
+  notes?: string | null;
 }
 
 export class MetersDB {
-  static getData(): MetersDbData {
-    return ensureDataFile();
-  }
-
-  static saveData(data: MetersDbData): void {
+  static async getMeters(): Promise<Meter[]> {
     try {
-      if (!fs.existsSync(/*turbopackIgnore: true*/ DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+      const meters = await meterDb.meter.findMany({
+        orderBy: { createdAt: 'asc' }
+      });
+      if (meters.length === 0) {
+        // İlk başlangıç sayaçları
+        const defaultMeters = [
+          { id: 'm-elek-main', meterNo: 'ELEK-ANA-01', name: 'Elektrik T1', type: 'Elektrik', unit: 'kWh' },
+          { id: 'm-gas-main', meterNo: 'GAS-ANA-01', name: 'Doğalgaz', type: 'Doğalgaz', unit: 'm³' },
+          { id: 'm-su-daire', meterNo: 'SU-DAIRE-01', name: 'Su Daireler', type: 'Su', unit: 'm³' },
+          { id: 'm-su-dukkan', meterNo: 'SU-DUKKAN-01', name: 'Su Dükkanlar', type: 'Su', unit: 'm³' },
+        ];
+        for (const m of defaultMeters) {
+          await meterDb.meter.upsert({
+            where: { meterNo: m.meterNo },
+            update: { ...m },
+            create: { ...m }
+          }).catch(() => {});
+        }
+        return await meterDb.meter.findMany({ orderBy: { createdAt: 'asc' } });
       }
-      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (e) {
-      console.error('Error writing meters_data.json:', e);
+      return meters;
+    } catch (error) {
+      console.error('Error fetching meters from DB:', error);
+      return [];
     }
   }
 
-  static getMeters(): Meter[] {
-    return this.getData().meters;
-  }
-
-  static getReadings(): MeterReading[] {
-    return this.getData().readings;
-  }
-
-  static addOrUpdateReading(reading: MeterReading): MeterReading {
-    const data = this.getData();
-    const idx = data.readings.findIndex((r) => r.id === reading.id);
-    if (idx !== -1) {
-      data.readings[idx] = reading;
-    } else {
-      // Aynı sayaç + aynı tarih varsa güncelle (duplicate önleme)
-      const sameIdx = data.readings.findIndex(
-        (r) => r.meterId === reading.meterId && r.readDate === reading.readDate
-      );
-      if (sameIdx !== -1) {
-        data.readings[sameIdx] = { ...data.readings[sameIdx], ...reading, id: data.readings[sameIdx].id };
-      } else {
-        data.readings.unshift(reading);
-      }
+  static async getReadings(): Promise<MeterReading[]> {
+    try {
+      const readings = await meterDb.meterReading.findMany({
+        orderBy: [{ readDate: 'desc' }, { readTime: 'desc' }]
+      });
+      return readings;
+    } catch (error) {
+      console.error('Error fetching meter readings from DB:', error);
+      return [];
     }
-    this.saveData(data);
-    return reading;
   }
 
-  static deleteReading(id: string): boolean {
-    const data = this.getData();
-    const initialLen = data.readings.length;
-    data.readings = data.readings.filter((r) => r.id !== id);
-    if (data.readings.length !== initialLen) {
-      this.saveData(data);
+  static async addOrUpdateReading(reading: Partial<MeterReading> & { meterId: string; readDate: string }): Promise<MeterReading> {
+    const meter = (await this.getMeters()).find(m => m.id === reading.meterId);
+    const readingId = reading.id || `r-${reading.readDate}-${reading.meterId}`;
+    const meterNo = reading.meterNo || meter?.meterNo || 'UNKNOWN';
+    const type = reading.type || meter?.type || 'Elektrik';
+    const unit = reading.unit || meter?.unit || (type === 'Elektrik' ? 'kWh' : 'm³');
+
+    const dataPayload = {
+      meterId: reading.meterId,
+      meterNo,
+      type,
+      unit,
+      location: reading.location || null,
+      readDate: reading.readDate,
+      readTime: reading.readTime || '10:00',
+      aktif: Number(reading.aktif ?? 0),
+      prevAktif: Number(reading.prevAktif ?? 0),
+      reaktif: Number(reading.reaktif ?? 0),
+      prevReaktif: Number(reading.prevReaktif ?? 0),
+      kapasitif: Number(reading.kapasitif ?? 0),
+      prevKapasitif: Number(reading.prevKapasitif ?? 0),
+      value: Number(reading.value ?? (reading.aktif ?? 0)),
+      prevValue: Number(reading.prevValue ?? 0),
+      status: reading.status || 'Normal',
+      notes: reading.notes || null,
+    };
+
+    const saved = await meterDb.meterReading.upsert({
+      where: {
+        meterId_readDate: {
+          meterId: reading.meterId,
+          readDate: reading.readDate
+        }
+      },
+      update: dataPayload,
+      create: {
+        id: readingId,
+        ...dataPayload
+      }
+    });
+
+    return saved;
+  }
+
+  static async deleteReading(id: string): Promise<boolean> {
+    try {
+      await meterDb.meterReading.delete({
+        where: { id }
+      });
       return true;
+    } catch (error) {
+      console.error('Error deleting reading from DB:', error);
+      return false;
     }
-    return false;
   }
 
-  static addMeter(meter: Meter): Meter {
-    const data = this.getData();
-    data.meters.push(meter);
-    this.saveData(data);
-    return meter;
+  static async addMeter(meter: Omit<Meter, 'id'> & { id?: string }): Promise<Meter> {
+    const newMeter = await meterDb.meter.upsert({
+      where: { meterNo: meter.meterNo },
+      update: {
+        name: meter.name,
+        type: meter.type,
+        unit: meter.unit,
+        location: meter.location || null
+      },
+      create: {
+        id: meter.id || `m-${Date.now()}`,
+        meterNo: meter.meterNo,
+        name: meter.name,
+        type: meter.type,
+        unit: meter.unit,
+        location: meter.location || null
+      }
+    });
+    return newMeter;
   }
 
-  static deleteMeter(id: string): boolean {
-    const data = this.getData();
-    data.meters = data.meters.filter((m) => m.id !== id);
-    data.readings = data.readings.filter((r) => r.meterId !== id);
-    this.saveData(data);
-    return true;
+  static async deleteMeter(id: string): Promise<boolean> {
+    try {
+      await meterDb.meter.delete({
+        where: { id }
+      });
+      return true;
+    } catch (error) {
+      console.error('Error deleting meter from DB:', error);
+      return false;
+    }
   }
 }

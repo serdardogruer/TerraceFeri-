@@ -1,9 +1,48 @@
 'use client';
 
-import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase, Send, Users, UserCheck, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsPage() {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.user) {
+          setCurrentUser(data.user);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const isSuperAdmin = currentUser?.email === 'serdardogruer@gmail.com' || currentUser?.role === 'SUPER_ADMIN';
+  const hasSettingsPermission = isSuperAdmin || (Array.isArray(currentUser?.permissions) && currentUser.permissions.includes('settings'));
+
+  if (!loading && !hasSettingsPermission) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400">
+          <ShieldAlert className="w-12 h-12" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Erişim Yetkiniz Bulunmamaktadır</h2>
+        <p className="text-sm text-slate-400 max-w-md">
+          Sistem Ayarları sayfasına erişim izniniz kısıtlanmıştır. Lütfen Süper Admin ile iletişime geçin.
+        </p>
+        <Link
+          href="/admin"
+          className="px-5 py-2 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/40 text-indigo-300 text-xs font-bold rounded-lg transition-colors"
+        >
+          Panele Geri Dön
+        </Link>
+      </div>
+    );
+  }
+
   const modules = [
     {
       id: 'core',
@@ -72,6 +111,26 @@ export default function SettingsPage() {
       db: 'terraceferi_management',
       version: '1.0.0',
       href: '/admin/management-requests'
+    },
+    {
+      id: 'users',
+      name: 'Kullanıcı & Yetki Yönetimi',
+      description: 'Sistem kullanıcıları, şifreler, roller ve modül bazlı erişim yetkileri',
+      status: 'active',
+      icon: Users,
+      db: 'terraceferi_core',
+      version: '1.0.0',
+      href: '/admin/users'
+    },
+    {
+      id: 'personnel',
+      name: 'Personel & PDKS Yönetimi',
+      description: 'Teknik personel listesi, vardiya saatleri ve QR kodlu konum bazlı giriş/çıkış takibi',
+      status: 'active',
+      icon: UserCheck,
+      db: 'terraceferi_personnel',
+      version: '1.0.0',
+      href: '/admin/personnel'
     }
   ];
 

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "whatsapp:bot": "node scripts/whatsapp-bot-server.js",
     "build": "npm run prisma:generate && next build",
+
     "start": "node scripts/start-server.js",
     "start:next": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint",
@@ -15,7 +15,9 @@
     "db:push": "node scripts/db-push-all.js",
     "db:seed": "node scripts/seed-admin.js",
     "db:export": "node scripts/export-data.js",
-    "db:import": "node scripts/import-data.js"
+    "db:import": "node scripts/import-data.js",
+    "db:pull:live": "node scripts/db-pull-live.js",
+    "deploy:vds": "node scripts/deploy-vds.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -45,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "prisma": "^5.21.0",
+    "ssh2": "^1.17.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

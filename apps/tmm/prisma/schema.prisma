@@ -45,10 +45,16 @@ generator managementClient {
   output   = "../node_modules/@prisma-clients/management"
 }
 
+generator meterClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma-clients/meter"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 
 // ==========================================
 // 1. CORE MODULE
@@ -60,19 +66,23 @@ model User {
   password    String
   role        Role
   status      UserStatus @default(ACTIVE)
+  permissions Json?
   lastLogin   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   deletedAt   DateTime?
 }
 
+
 enum Role {
+  SUPER_ADMIN
   ADMIN
-  RESIDENT
   TECHNICAL
-  CLEANING
   SECURITY
+  CLEANING
+  RESIDENT
 }
+
 
 enum UserStatus {
   ACTIVE
@@ -320,3 +330,48 @@ model ManagementRequest {
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
 }
+
+// ==========================================
+// 9. METER & READINGS MODULE
+// ==========================================
+model Meter {
+  id        String         @id @default(uuid())
+  meterNo   String         @unique
+  name      String
+  type      String         // 'Elektrik' | 'Doğalgaz' | 'Su'
+  unit      String         // 'kWh' | 'm³'
+  location  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  readings  MeterReading[]
+}
+
+model MeterReading {
+  id            String    @id @default(uuid())
+  meterId       String
+  meterNo       String
+  type          String
+  unit          String
+  location      String?
+  readDate      String    // 'YYYY-MM-DD'
+  readTime      String    @default("10:00") // 'HH:mm'
+  aktif         Float     @default(0)
+  prevAktif     Float     @default(0)
+  reaktif       Float     @default(0)
+  prevReaktif   Float     @default(0)
+  kapasitif     Float     @default(0)
+  prevKapasitif Float     @default(0)
+  value         Float     @default(0)
+  prevValue     Float     @default(0)
+  status        String    @default("Normal")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  meter         Meter?    @relation(fields: [meterId], references: [id], onDelete: Cascade)
+
+  @@unique([meterId, readDate])
+  @@index([readDate])
+  @@index([type])
+}
+

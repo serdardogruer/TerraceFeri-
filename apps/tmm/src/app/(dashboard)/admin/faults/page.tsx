@@ -7,6 +7,7 @@ import {
   Calendar, FileText, CheckSquare, Save,
   Activity, Clock, Share2, Map, Printer
 } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface Equipment {
   id: string;
@@ -44,7 +45,9 @@ function getRandomReportCode(): string {
 }
 
 export default function FaultsPage() {
+  const { canCreate, canEdit, canDelete, canExport, isSuperAdmin } = useUserPermissions('faults');
   const [faults, setFaults] = useState<FaultRecord[]>([]);
+
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,7 @@ export default function FaultsPage() {
   // Accordion state - default today's date expanded
   const todayLabel = useMemo(() => new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }), []);
   const [expandedDates, setExpandedDates] = useState<string[]>([todayLabel]);
+
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -302,6 +306,10 @@ export default function FaultsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canDelete) {
+      alert('Bu işlemi yapmaya yetkiniz bulunmamaktadır (Silme Yetkisi Kapalı).');
+      return;
+    }
     const fault = faults.find(f => f.id === id);
     // Günlük kopya mı (templateId var) yoksa tek seferlik kayıt mı?
     const isDailyCopy = !!fault?.templateId;
@@ -309,6 +317,7 @@ export default function FaultsPage() {
       ? 'Bugünkü günlük rutini silmek istiyor musunuz?\n(Yarın tekrar otomatik olarak eklenecektir.)'
       : 'Bu kaydı silmek istediğinize emin misiniz?';
     if (!confirm(msg)) return;
+
     try {
       const res = await fetch(`/api/faults?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -467,12 +476,14 @@ ${rutinItems.length > 0
             <option>Bu Ay</option>
           </select>
 
-          <button 
-            onClick={() => openModal()}
-            className="w-full sm:w-auto flex items-center justify-center px-5 py-2.5 border border-indigo-600/30 bg-indigo-900/20 hover:bg-indigo-900/40 text-indigo-300 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4 mr-2" /> Kayıt Ekle
-          </button>
+          {canCreate && (
+            <button 
+              onClick={() => openModal()}
+              className="w-full sm:w-auto flex items-center justify-center px-5 py-2.5 border border-indigo-600/30 bg-indigo-900/20 hover:bg-indigo-900/40 text-indigo-300 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Kayıt Ekle
+            </button>
+          )}
         </div>
       </div>
 
@@ -537,14 +548,17 @@ ${rutinItems.length > 0
                       {group.counts.genel} Genel İşlem
                     </span>
 
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); generateReport(dateLabel, group.items); }}
-                      className="ml-2 px-5 py-2 bg-[#1a1130] hover:bg-[#251846] border border-[#3c2573] text-[#c9a7ff] text-xs font-bold rounded-lg transition-colors flex items-center shadow-lg"
-                    >
-                      <Share2 className="w-3.5 h-3.5 mr-2" /> Rapor Gönder
-                    </button>
+                    {canExport && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); generateReport(dateLabel, group.items); }}
+                        className="ml-2 px-5 py-2 bg-[#1a1130] hover:bg-[#251846] border border-[#3c2573] text-[#c9a7ff] text-xs font-bold rounded-lg transition-colors flex items-center shadow-lg cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5 mr-2" /> Rapor Gönder
+                      </button>
+                    )}
                   </div>
                 </div>
+
 
                 {/* ACCORDION BODY (List of items) */}
                 {isExpanded && (
@@ -554,9 +568,11 @@ ${rutinItems.length > 0
                     <div>
                       <div className="flex items-center justify-between mb-4 px-1">
                         <h4 className="text-rose-500 font-bold text-sm">Bu Tarihteki Arızalar ({group.counts.ariza})</h4>
-                        <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'ARIZA'); }} className="text-rose-400 hover:text-rose-300 border border-rose-500/30 bg-[#070A11] hover:bg-rose-500/10 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center transition-colors">
-                          <Plus className="w-3.5 h-3.5 mr-1.5" /> Arıza Ekle
-                        </button>
+                        {canCreate && (
+                          <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'ARIZA'); }} className="text-rose-400 hover:text-rose-300 border border-rose-500/30 bg-[#070A11] hover:bg-rose-500/10 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center transition-colors cursor-pointer">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Arıza Ekle
+                          </button>
+                        )}
                       </div>
                       <div className="space-y-3">
                         {group.items.filter(f => f.recordType === 'ARIZA').map(fault => (
@@ -582,13 +598,19 @@ ${rutinItems.length > 0
 
                             {/* Sağ Taraf Aksiyonlar */}
                             <div className="flex items-center gap-2 shrink-0 md:ml-auto">
-                              <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
-                              </div>
-                              <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><FileText className="w-4 h-4" /></button>
-                              <button onClick={(e) => { e.stopPropagation(); handleDelete(fault.id); }} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><X className="w-4 h-4" /></button>
+                              {canEdit && (
+                                <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
+                                </div>
+                              )}
+                              {canEdit && (
+                                <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Düzenle"><FileText className="w-4 h-4" /></button>
+                              )}
+                              {canDelete && (
+                                <button onClick={(e) => { e.stopPropagation(); handleDelete(fault.id); }} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Sil"><X className="w-4 h-4" /></button>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -602,9 +624,11 @@ ${rutinItems.length > 0
                     <div>
                       <div className="flex items-center justify-between mb-4 px-1">
                         <h4 className="text-blue-400 font-bold text-sm">Bu Tarihteki Günlük Devriye & Rutin İşler ({group.counts.gunluk})</h4>
-                        <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'GUNLUK_RUTIN'); }} className="text-blue-400 hover:text-blue-300 border border-blue-500/30 bg-[#070A11] hover:bg-blue-500/10 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center transition-colors">
-                          <Plus className="w-3.5 h-3.5 mr-1.5" /> Günlük Rutin Ekle
-                        </button>
+                        {canCreate && (
+                          <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'GUNLUK_RUTIN'); }} className="text-blue-400 hover:text-blue-300 border border-blue-500/30 bg-[#070A11] hover:bg-blue-500/10 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center transition-colors cursor-pointer">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Günlük Rutin Ekle
+                          </button>
+                        )}
                       </div>
                       <div className="space-y-3">
                         {group.items.filter(f => f.recordType === 'GUNLUK_RUTIN' || f.recordType === 'RUTIN_GOREV').map(fault => (
@@ -625,13 +649,19 @@ ${rutinItems.length > 0
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0 md:ml-auto">
-                              <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-blue-900/30 text-blue-400 border border-blue-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
-                              </div>
-                              <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><FileText className="w-4 h-4" /></button>
-                              <button onClick={(e) => { e.stopPropagation(); handleDelete(fault.id); }} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><X className="w-4 h-4" /></button>
+                              {canEdit && (
+                                <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-blue-900/30 text-blue-400 border border-blue-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
+                                </div>
+                              )}
+                              {canEdit && (
+                                <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Düzenle"><FileText className="w-4 h-4" /></button>
+                              )}
+                              {canDelete && (
+                                <button onClick={(e) => { e.stopPropagation(); handleDelete(fault.id); }} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Sil"><X className="w-4 h-4" /></button>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -645,9 +675,11 @@ ${rutinItems.length > 0
                     <div>
                       <div className="flex items-center justify-between mb-4 px-1">
                         <h4 className="text-purple-400 font-bold text-sm">Bu Tarihe Denk Gelen Aylık Periyodik Rutinler ({group.counts.aylik})</h4>
-                        <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'AYLIK_RUTIN'); }} className="text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:bg-purple-500/10 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center transition-colors">
-                          <Plus className="w-3.5 h-3.5 mr-1.5" /> Aylık Rutin Ekle
-                        </button>
+                        {canCreate && (
+                          <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'AYLIK_RUTIN'); }} className="text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:bg-purple-500/10 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center transition-colors cursor-pointer">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Aylık Rutin Ekle
+                          </button>
+                        )}
                       </div>
                       <div className="space-y-3">
                         {group.items.filter(f => f.recordType === 'AYLIK_RUTIN').map(fault => (
@@ -662,13 +694,19 @@ ${rutinItems.length > 0
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 md:ml-auto">
-                              <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
-                              </div>
-                              <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><FileText className="w-4 h-4" /></button>
-                              <button onClick={() => handleDelete(fault.id)} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><X className="w-4 h-4" /></button>
+                              {canEdit && (
+                                <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
+                                </div>
+                              )}
+                              {canEdit && (
+                                <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Düzenle"><FileText className="w-4 h-4" /></button>
+                              )}
+                              {canDelete && (
+                                <button onClick={() => handleDelete(fault.id)} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Sil"><X className="w-4 h-4" /></button>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -682,9 +720,11 @@ ${rutinItems.length > 0
                     <div>
                       <div className="flex items-center justify-between mb-4 px-1">
                         <h4 className="text-teal-400 font-bold text-sm">Bu Tarihteki Genel İşlemler & Görevler ({group.counts.genel})</h4>
-                        <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'GENEL_ISLEM'); }} className="text-teal-400 hover:text-teal-300 border border-teal-500/30 hover:bg-teal-500/10 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center transition-colors">
-                          <Plus className="w-3.5 h-3.5 mr-1.5" /> İşlem Ekle
-                        </button>
+                        {canCreate && (
+                          <button onClick={(e) => { e.stopPropagation(); openModal(undefined, 'GENEL_ISLEM'); }} className="text-teal-400 hover:text-teal-300 border border-teal-500/30 hover:bg-teal-500/10 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center transition-colors cursor-pointer">
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> İşlem Ekle
+                          </button>
+                        )}
                       </div>
                       <div className="space-y-3">
                         {group.items.filter(f => f.recordType === 'GENEL_ISLEM').map(fault => (
@@ -699,13 +739,19 @@ ${rutinItems.length > 0
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 md:ml-auto">
-                              <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-teal-900/30 text-teal-400 border border-teal-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
-                                <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
-                              </div>
-                              <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><FileText className="w-4 h-4" /></button>
-                              <button onClick={() => handleDelete(fault.id)} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10"><X className="w-4 h-4" /></button>
+                              {canEdit && (
+                                <div className="flex items-center bg-[#070A11] rounded-lg p-1 border border-slate-800/60 mr-2">
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Bekliyor'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Bekliyor' ? 'bg-amber-900/30 text-amber-500 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>Bekliyor</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'İşlemde'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'İşlemde' ? 'bg-teal-900/30 text-teal-400 border border-teal-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>İşlemde</button>
+                                  <button onClick={(e) => { e.stopPropagation(); updateStatus(fault, 'Tamamlandı'); }} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${fault.status === 'Tamamlandı' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>✓ Tamam</button>
+                                </div>
+                              )}
+                              {canEdit && (
+                                <button onClick={() => openModal(fault)} className="p-2.5 bg-[#070A11] border border-blue-900/50 text-blue-500 hover:bg-blue-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Düzenle"><FileText className="w-4 h-4" /></button>
+                              )}
+                              {canDelete && (
+                                <button onClick={() => handleDelete(fault.id)} className="p-2.5 bg-[#070A11] border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-lg transition-colors flex items-center justify-center w-10 h-10 cursor-pointer" title="Sil"><X className="w-4 h-4" /></button>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -715,6 +761,7 @@ ${rutinItems.length > 0
                       </div>
                     </div>
                   </div>
+
                 )}
               </div>
             );
@@ -737,13 +784,14 @@ ${rutinItems.length > 0
                 <h3 className="text-xl font-bold text-white flex items-center tracking-wide">
                   <Activity className="w-5 h-5 mr-3 text-indigo-500" /> {editingId ? 'Kayıt Detayları & Düzenle' : 'Yeni Kayıt Ekle'}
                 </h3>
-                {editingId && (
-                  <button onClick={() => handleDelete(editingId!)} className="flex items-center px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/20 rounded-md transition-colors text-sm font-semibold">
+                {editingId && canDelete && (
+                  <button onClick={() => handleDelete(editingId!)} className="flex items-center px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/20 rounded-md transition-colors text-sm font-semibold cursor-pointer">
                     <X className="w-4 h-4 mr-1.5" /> Sil
                   </button>
                 )}
               </div>
-              <button onClick={closeModal} className="text-slate-500 hover:text-white p-1.5 rounded-md hover:bg-slate-800 ml-2">
+              <button onClick={closeModal} className="text-slate-500 hover:text-white p-1.5 rounded-md hover:bg-slate-800 ml-2 cursor-pointer">
+
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -850,11 +898,14 @@ ${rutinItems.length > 0
             </div>
 
             <div className="px-6 py-4 border-t border-slate-800/80 bg-[#080b12] flex items-center justify-end space-x-3">
-              <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-transparent border border-slate-600/50 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 text-sm font-semibold rounded-lg transition-colors">İptal</button>
-              <button form="fault-form" type="submit" className="flex items-center px-6 py-2.5 bg-transparent border border-indigo-500/50 text-indigo-400 hover:bg-indigo-900/20 text-sm font-bold rounded-lg transition-colors">
-                <Save className="w-4 h-4 mr-2" /> Kaydet
-              </button>
+              <button type="button" onClick={closeModal} className="px-5 py-2.5 bg-transparent border border-slate-600/50 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 text-sm font-semibold rounded-lg transition-colors cursor-pointer">İptal</button>
+              {((editingId && canEdit) || (!editingId && canCreate)) && (
+                <button form="fault-form" type="submit" className="flex items-center px-6 py-2.5 bg-indigo-900/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-900/40 text-sm font-bold rounded-lg transition-colors cursor-pointer">
+                  <Save className="w-4 h-4 mr-2" /> Kaydet
+                </button>
+              )}
             </div>
+
           </div>
         </div>
       )}

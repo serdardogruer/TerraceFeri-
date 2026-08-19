@@ -63,6 +63,3 @@
 7. **Geliştirme & Dağıtım (Deploy) Standardı:**
    - Tüm geliştirme, hata düzeltme, tasarım ve test işlemleri yalnızca **Lokal Ortamda (`http://localhost:3005`)** yapılacaktır.
    - Kullanıcı açıkça "deploy et", "canlıya al" veya "sunucuya yükle" talimatı vermedikçe canlı VDS sunucusuna ASLA dağıtım yapılmayacaktır.
-
-
-

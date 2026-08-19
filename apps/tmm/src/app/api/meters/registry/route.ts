@@ -3,7 +3,8 @@ import { MetersDB } from '@/lib/meters-db';
 
 export async function GET() {
   try {
-    return NextResponse.json({ success: true, data: MetersDB.getMeters() });
+    const meters = await MetersDB.getMeters();
+    return NextResponse.json({ success: true, data: meters });
   } catch (error) {
     console.error('Error fetching meters registry:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
@@ -23,12 +24,13 @@ export async function POST(req: NextRequest) {
       meterNo: body.meterNo,
       name: body.name || `${body.type} Sayacı`,
       type: body.type,
-      unit: body.type === 'Elektrik' ? 'kWh' : 'm³'
+      unit: body.type === 'Elektrik' ? 'kWh' : 'm³',
+      location: body.location || null
     };
 
-    MetersDB.addMeter(newMeter);
+    const saved = await MetersDB.addMeter(newMeter);
 
-    return NextResponse.json({ success: true, data: newMeter });
+    return NextResponse.json({ success: true, data: saved });
   } catch (error) {
     console.error('Error creating new meter:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
@@ -44,7 +46,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Meter ID required' }, { status: 400 });
     }
 
-    const ok = MetersDB.deleteMeter(id);
+    const ok = await MetersDB.deleteMeter(id);
 
     return NextResponse.json({ success: ok });
   } catch (error) {

@@ -150,5 +150,21 @@
     "time": "10:08",
     "date": "15 Ağustos 2026",
     "timestamp": 1786777691282
+  },
+  {
+    "id": "msg-u-1786897154312",
+    "sender": "user",
+    "text": "bugünün elektrik dogalgaz ve su sayaçlarını gir",
+    "time": "19:19",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897154312
+  },
+  {
+    "id": "msg-b-1786897155067",
+    "sender": "bot",
+    "text": "✅ 2026-08-16 tarihli sayaç endeksleri kaydedildi:\nDoğalgaz: 0",
+    "time": "19:19",
+    "date": "16 Ağustos 2026",
+    "timestamp": 1786897155070
   }
 ]

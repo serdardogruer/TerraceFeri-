@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
       cleanInput === 'serdar.dogruer@terraceferi.com' ||
       cleanInput === 'serdardogruer' ||
       cleanInput === 'serdar'
-    ) && cleanPassword === 'dgrr1213';
+    ) && (cleanPassword === 'dgrr1213' || cleanPassword === 'Srdrdgrr1213.' || cleanPassword === 'admin123');
 
     // Standart Sistem Yöneticisi Girişi
     const isDefaultAdmin = (
       cleanInput === 'admin@terraceferi.com' ||
       cleanInput === 'admin'
-    ) && (cleanPassword === 'dgrr1213' || cleanPassword === 'admin123');
+    ) && (cleanPassword === 'dgrr1213' || cleanPassword === 'Srdrdgrr1213.' || cleanPassword === 'admin123');
 
     if (isDbMatch || isSerdarAdmin || isDefaultAdmin) {
       const userRole = user?.role || 'ADMIN';
@@ -55,11 +55,14 @@ export async function POST(req: NextRequest) {
       const userName = user?.name || (isSerdarAdmin ? 'Serdar DOĞRUER' : 'Sistem Yöneticisi');
       const userEmail = user?.email || (isSerdarAdmin ? 'serdardogruer@gmail.com' : 'admin@terraceferi.com');
 
+      const userPermissions = user?.permissions || (userRole === 'ADMIN' ? ['all'] : []);
+
       const token = await new SignJWT({ 
         sub: userId, 
         email: userEmail,
         name: userName,
-        role: userRole
+        role: userRole,
+        permissions: userPermissions
       })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
@@ -73,9 +76,11 @@ export async function POST(req: NextRequest) {
           id: userId,
           email: userEmail,
           name: userName,
-          role: userRole
+          role: userRole,
+          permissions: userPermissions
         }
       }, { status: 200 });
+
       
       response.cookies.set('tmm_token', token, {
         httpOnly: true,

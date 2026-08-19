@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, Save, MapPin, QrCode, X, Printer } from 'lucide-react';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface LocationSetting {
   id: string;
@@ -15,7 +16,9 @@ interface LocationSetting {
 
 export default function SettingsClient({ initialSettings }: { initialSettings: LocationSetting[] }) {
   const router = useRouter();
+  const { canEdit } = useUserPermissions();
   const [settings, setSettings] = useState<LocationSetting[]>(initialSettings);
+
   const [loading, setLoading] = useState(false);
   const [qrModal, setQrModal] = useState<{isOpen: boolean, setting: LocationSetting | null}>({ isOpen: false, setting: null });
   const [isMounted, setIsMounted] = useState(false);
@@ -92,11 +95,14 @@ export default function SettingsClient({ initialSettings }: { initialSettings: L
         {settings.length === 0 ? (
           <div className="text-center p-8 border border-dashed border-slate-700 rounded-xl">
             <p className="text-slate-400 mb-4">Henüz kayıtlı bir şantiye konumu yok.</p>
-            <button onClick={handleAddFirst} className="bg-orange-900/10 border border-orange-500/40 text-orange-400 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-900/30 transition-colors">
-              İlk Konumu Ekle
-            </button>
+            {canEdit && (
+              <button onClick={handleAddFirst} className="bg-orange-900/10 border border-orange-500/40 text-orange-400 px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-900/30 transition-colors cursor-pointer">
+                İlk Konumu Ekle
+              </button>
+            )}
           </div>
         ) : (
+
           settings.map((setting, index) => (
             <div key={setting.id} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#050914] p-5 rounded-xl border border-slate-800/60">
               <div className="col-span-1 md:col-span-2">
@@ -163,21 +169,24 @@ export default function SettingsClient({ initialSettings }: { initialSettings: L
                     }
                     setQrModal({ isOpen: true, setting });
                   }}
-                  className="bg-indigo-900/20 border border-indigo-500/40 hover:bg-indigo-900/40 text-indigo-400 px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
+                  className="bg-indigo-900/20 border border-indigo-500/40 hover:bg-indigo-900/40 text-indigo-400 px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <QrCode className="w-4 h-4" />
                   QR Üret / Yazdır
                 </button>
-                <button 
-                  type="button" 
-                  disabled={loading}
-                  onClick={() => handleSave(setting)}
-                  className="bg-orange-900/20 border border-orange-500/40 hover:bg-orange-900/40 text-orange-400 disabled:opacity-50 px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  {loading ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
-                </button>
+                {canEdit && (
+                  <button 
+                    type="button" 
+                    disabled={loading}
+                    onClick={() => handleSave(setting)}
+                    className="bg-orange-900/20 border border-orange-500/40 hover:bg-orange-900/40 text-orange-400 disabled:opacity-50 px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
+                  </button>
+                )}
               </div>
+
             </div>
           ))
         )}

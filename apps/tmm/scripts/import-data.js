@@ -1,10 +1,6 @@
 /**
  * TerraceFeri - Database Import Script
  * Imports all data from data/full_db_dump.json into the target PostgreSQL database.
- * 
- * Usage:
- *   node scripts/import-data.js
- *   (or npm run db:import)
  */
 
 const fs = require('fs');
@@ -39,17 +35,23 @@ const { PrismaClient: CompanyClient } = require('@prisma-clients/company');
 const { PrismaClient: EquipmentClient } = require('@prisma-clients/equipment');
 const { PrismaClient: FaultClient } = require('@prisma-clients/fault');
 const { PrismaClient: PersonnelClient } = require('@prisma-clients/personnel');
+const { PrismaClient: ManagementClient } = require('@prisma-clients/management');
+const { PrismaClient: MeterClient } = require('@prisma-clients/meter');
 
-const coreDb = new CoreClient({ datasources: { db: { url: process.env.CORE_DATABASE_URL || process.env.DATABASE_URL } } });
-const areaDb = new AreaClient({ datasources: { db: { url: process.env.AREA_DATABASE_URL || process.env.DATABASE_URL } } });
-const apartmentDb = new ApartmentClient({ datasources: { db: { url: process.env.APARTMENT_DATABASE_URL || process.env.DATABASE_URL } } });
-const companyDb = new CompanyClient({ datasources: { db: { url: process.env.COMPANY_DATABASE_URL || process.env.DATABASE_URL } } });
-const equipmentDb = new EquipmentClient({ datasources: { db: { url: process.env.EQUIPMENT_DATABASE_URL || process.env.DATABASE_URL } } });
-const faultDb = new FaultClient({ datasources: { db: { url: process.env.FAULT_DATABASE_URL || process.env.DATABASE_URL } } });
-const personnelDb = new PersonnelClient({ datasources: { db: { url: process.env.PERSONNEL_DATABASE_URL || process.env.DATABASE_URL } } });
+const defaultUrl = process.env.DATABASE_URL || 'postgresql://terraceferi_user:Srdrdgrr1213.@127.0.0.1:5432/terraceferi?schema=public';
 
-async function importAll() {
-  const dumpPath = path.join(__dirname, '../data/full_db_dump.json');
+const coreDb = new CoreClient({ datasources: { db: { url: process.env.CORE_DATABASE_URL || defaultUrl } } });
+const areaDb = new AreaClient({ datasources: { db: { url: process.env.AREA_DATABASE_URL || defaultUrl } } });
+const apartmentDb = new ApartmentClient({ datasources: { db: { url: process.env.APARTMENT_DATABASE_URL || defaultUrl } } });
+const companyDb = new CompanyClient({ datasources: { db: { url: process.env.COMPANY_DATABASE_URL || defaultUrl } } });
+const equipmentDb = new EquipmentClient({ datasources: { db: { url: process.env.EQUIPMENT_DATABASE_URL || defaultUrl } } });
+const faultDb = new FaultClient({ datasources: { db: { url: process.env.FAULT_DATABASE_URL || defaultUrl } } });
+const personnelDb = new PersonnelClient({ datasources: { db: { url: process.env.PERSONNEL_DATABASE_URL || defaultUrl } } });
+const managementDb = new ManagementClient({ datasources: { db: { url: process.env.MANAGEMENT_DATABASE_URL || defaultUrl } } });
+const meterDb = new MeterClient({ datasources: { db: { url: process.env.METER_DATABASE_URL || defaultUrl } } });
+
+async function importAll(customDumpPath) {
+  const dumpPath = customDumpPath || path.join(__dirname, '../data/full_db_dump.json');
   if (!fs.existsSync(dumpPath)) {
     console.error(`❌ Hata: Veri dosyası bulunamadı: ${dumpPath}`);
     process.exit(1);
@@ -59,25 +61,18 @@ async function importAll() {
   console.log('🔄 Veritabanına aktarım başlatılıyor...\n');
 
   try {
-    // 1. Core Users Seed
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@terraceferi.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    const adminName = process.env.ADMIN_NAME || 'Sistem Yöneticisi';
-
-    const existingAdmin = await coreDb.user.findUnique({ where: { email: adminEmail } }).catch(() => null);
-    if (!existingAdmin) {
-      await coreDb.user.create({
-        data: {
-          email: adminEmail,
-          password: adminPassword,
-          name: adminName,
-          role: 'ADMIN',
-          status: 'ACTIVE',
-        },
-      }).catch(e => console.warn('Admin user create warn:', e.message));
-      console.log(`✅ Core: Admin kullanıcısı oluşturuldu (${adminEmail})`);
-    } else {
-      console.log(`✅ Core: Admin kullanıcısı zaten mevcut (${adminEmail})`);
+    // 1. Core Users
+    if (dump.core && dump.core.users && dump.core.users.length > 0) {
+      let count = 0;
+      for (const user of dump.core.users) {
+        await coreDb.user.upsert({
+          where: { email: user.email },
+          update: { ...user },
+          create: { ...user },
+        }).catch(e => console.warn('User upsert warn:', e.message));
+        count++;
+      }
+      console.log(`✅ Core: ${count} kullanıcı aktarıldı/güncellendi.`);
     }
 
     // 2. Area Data
@@ -175,7 +170,53 @@ async function importAll() {
       }
     }
 
-    console.log('\n🎉 Tüm mevcut veriler hedef veritabanına başarıyla aktarıldı!');
+    // 8. Management Data
+    if (dump.management && dump.management.managementRequests && dump.management.managementRequests.length > 0) {
+      let count = 0;
+      for (const req of dump.management.managementRequests) {
+        await managementDb.managementRequest.upsert({
+          where: { id: req.id },
+          update: { ...req },
+          create: { ...req },
+        }).catch(e => console.warn('ManagementRequest upsert warn:', e.message));
+        count++;
+      }
+      console.log(`✅ Management: ${count} yönetim talebi aktarıldı/güncellendi.`);
+    }
+
+    // 9. Meter Data
+    if (dump.meter) {
+      if (dump.meter.meters && dump.meter.meters.length > 0) {
+        for (const m of dump.meter.meters) {
+          await meterDb.meter.upsert({
+            where: { meterNo: m.meterNo },
+            update: { ...m },
+            create: { ...m },
+          }).catch(e => console.warn('Meter upsert warn:', e.message));
+        }
+        console.log(`✅ Meter: ${dump.meter.meters.length} sayaç tanımı aktarıldı.`);
+      }
+
+      if (dump.meter.readings && dump.meter.readings.length > 0) {
+        let count = 0;
+        for (const r of dump.meter.readings) {
+          await meterDb.meterReading.upsert({
+            where: {
+              meterId_readDate: {
+                meterId: r.meterId,
+                readDate: r.readDate
+              }
+            },
+            update: { ...r },
+            create: { ...r },
+          }).catch(e => console.warn('Reading upsert warn:', e.message));
+          count++;
+        }
+        console.log(`✅ Meter: ${count} sayaç okuma kaydı aktarıldı.`);
+      }
+    }
+
+    console.log('\n🎉 Tüm veriler veritabanına başarıyla aktarıldı!');
   } catch (error) {
     console.error('❌ İçe aktarma hatası:', error);
   } finally {
@@ -186,8 +227,14 @@ async function importAll() {
     await equipmentDb.$disconnect().catch(() => {});
     await faultDb.$disconnect().catch(() => {});
     await personnelDb.$disconnect().catch(() => {});
-    process.exit(0);
+    await managementDb.$disconnect().catch(() => {});
+    await meterDb.$disconnect().catch(() => {});
+    if (require.main === module) process.exit(0);
   }
 }
 
-importAll();
+module.exports = { importAll };
+
+if (require.main === module) {
+  importAll();
+}
