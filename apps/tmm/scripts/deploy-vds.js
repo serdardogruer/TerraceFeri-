@@ -16,24 +16,25 @@ async function deploy() {
 
   const remoteCmd = `
     set -e
-    echo "📥 1/4 Son kodlar GitHub/Depodan çekiliyor..."
-    cd /var/www/terraceferi
+    echo "📥 1/3 Son kodlar GitHub'dan çekiliyor..."
+    cd /opt/terraceferi
     git fetch origin main
     git reset --hard origin/main
 
+    echo "🏗️ 2/3 Canlı Docker konteyneri derleniyor ve güncelleniyor..."
+    docker compose build
+    docker compose up -d
 
+    echo "🔄 3/3 PM2 yedek servisi eşitleniyor..."
+    cd /var/www/terraceferi
+    git fetch origin main
+    git reset --hard origin/main
     cd /var/www/terraceferi/apps/tmm
-    echo "📦 2/4 Veritabanı tabloları ve Prisma güncelleniyor..."
-    npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
-
-    echo "🏗️ 3/4 Next.js production build alınıyor..."
-    npm run build
-
-    echo "🔄 4/4 PM2 servisi kesintisiz yeniden başlatılıyor..."
-    pm2 reload terraceferi-web
+    npm run prisma:generate || true
 
     echo "🎉 Canlıya alma başarıyla tamamlandı!"
   `;
+
 
   try {
     const res = await runRemote(remoteCmd);
