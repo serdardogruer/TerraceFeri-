@@ -1,0 +1,20 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Option 1: Geometric TF Monogram + Typography -->
+  <g id="logo-mark">
+    <rect x="10" y="15" width="50" height="50" rx="4" fill="url(#gold-grad-1)" />
+    <!-- T & F Interlocking Lines -->
+    <path d="M22 27H48V33H38V53H32V33H22V27Z" fill="#0a0a0a" />
+    <path d="M38 37H46V43H38V37Z" fill="#0a0a0a" />
+    <path d="M38 47H44V53H38V47Z" fill="#0a0a0a" />
+  </g>
+  <!-- Typography -->
+  <text x="74" y="42" font-family="'Cormorant Garamond', serif, Georgia" font-size="26" font-weight="500" fill="#f5f5f5" letter-spacing="1">TerraceFeri</text>
+  <text x="75" y="58" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#c9a84c" letter-spacing="4">REZİDANS</text>
+  <defs>
+    <linearGradient id="gold-grad-1" x1="10" y1="15" x2="60" y2="65" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8C97A" />
+      <stop offset="0.5" stop-color="#C9A84C" />
+      <stop offset="1" stop-color="#9A7B2C" />
+    </linearGradient>
+  </defs>
+</svg>

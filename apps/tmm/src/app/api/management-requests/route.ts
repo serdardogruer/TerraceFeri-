@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Başlık alanı zorunludur.' }, { status: 400 });
     }
 
-    if (!body.type || !['MALZEME_TALEBI', 'BILGILENDIRME'].includes(body.type)) {
+    if (!body.type || !['MALZEME_TALEBI', 'BILGILENDIRME', 'SAKIN_TALEBI'].includes(body.type)) {
       return NextResponse.json({ success: false, message: 'Geçersiz talep türü.' }, { status: 400 });
     }
 

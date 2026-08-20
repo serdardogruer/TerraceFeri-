@@ -1,0 +1,18 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Option 3: Abstract Terrace Layers -->
+  <g id="logo-layers">
+    <!-- 3 Terraced Blocks -->
+    <path d="M12 55 H52 V49 H12 Z" fill="url(#gold-grad-3)" />
+    <path d="M18 45 H46 V39 H18 Z" fill="url(#gold-grad-3)" opacity="0.85" />
+    <path d="M24 35 H40 V25 H24 Z" fill="url(#gold-grad-3)" opacity="0.7" />
+  </g>
+  <!-- Typography -->
+  <text x="68" y="41" font-family="'Inter', sans-serif" font-size="22" font-weight="300" fill="#ffffff" letter-spacing="3">TERRACE<tspan font-weight="700" fill="#c9a84c">FERİ</tspan></text>
+  <text x="70" y="57" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#888888" letter-spacing="4">PREMIUM RESIDENCE</text>
+  <defs>
+    <linearGradient id="gold-grad-3" x1="12" y1="25" x2="52" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8C97A" />
+      <stop offset="1" stop-color="#C9A84C" />
+    </linearGradient>
+  </defs>
+</svg>

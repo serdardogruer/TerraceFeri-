@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase, Send, Users, UserCheck, ShieldAlert } from 'lucide-react';
+import { CheckCircle2, Server, Database, Activity, Map, Wrench, Zap, Cpu, Briefcase, Send, Users, UserCheck, ShieldAlert, Smartphone, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsPage() {
@@ -131,6 +131,26 @@ export default function SettingsPage() {
       db: 'terraceferi_personnel',
       version: '1.0.0',
       href: '/admin/personnel'
+    },
+    {
+      id: 'personnel_mobile',
+      name: 'Personel Core (Mobil)',
+      description: 'Temizlik, Güvenlik, Teknik ve Tesis saha operasyonları mobil arayüzü',
+      status: 'active',
+      icon: Shield,
+      db: 'terraceferi_core',
+      version: '1.0.0',
+      href: '/personel'
+    },
+    {
+      id: 'resident_mobile',
+      name: 'Sakin Core (Mobil)',
+      description: 'Arıza/Talep bildirimi, duyurular, randevu ve yönetim mesajlaşması mobil portali',
+      status: 'active',
+      icon: Smartphone,
+      db: 'terraceferi_core',
+      version: '1.0.0',
+      href: '/sakin'
     }
   ];
 

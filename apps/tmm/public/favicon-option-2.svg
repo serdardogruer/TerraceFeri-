@@ -1,0 +1,14 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon Option 2: Elegant Crest Badge Icon -->
+  <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+  <rect x="8" y="8" width="48" height="48" rx="4" fill="#141414" stroke="url(#gold-grad-f2)" stroke-width="2"/>
+  <rect x="12" y="12" width="40" height="40" rx="2" fill="none" stroke="url(#gold-grad-f2)" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>
+  <text x="32" y="39" font-family="'Cormorant Garamond', Georgia, serif" font-size="24" font-weight="700" fill="url(#gold-grad-f2)" text-anchor="middle">TF</text>
+  <defs>
+    <linearGradient id="gold-grad-f2" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3E5AB" />
+      <stop offset="0.5" stop-color="#C9A84C" />
+      <stop offset="1" stop-color="#8A6D23" />
+    </linearGradient>
+  </defs>
+</svg>

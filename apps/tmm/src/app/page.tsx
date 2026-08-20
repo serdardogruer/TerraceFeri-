@@ -1,322 +1,402 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Building2, ShieldCheck, Zap, Sparkles, PhoneCall, 
-  MapPin, Clock, ArrowRight, CheckCircle2, UserCheck, 
-  Wifi, Car, Activity, Lock, MessageSquare, ChevronRight
-} from 'lucide-react';
+import { ChevronDown, ArrowRight, MapPin, Shield, Waves, Dumbbell, Car, Zap } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+
+const stats = [
+  { value: '13+', label: 'Sosyal Tesis' },
+  { value: '7/24', label: 'Güvenlik' },
+  { value: '5', label: "Dk'da Taksim" },
+  { value: '100%', label: 'Kapalı Otopark' },
+];
+
+const features = [
+  { icon: Waves, label: 'Kapalı Yüzme Havuzu', desc: 'Isıtmalı, dört mevsim kullanım' },
+  { icon: Dumbbell, label: 'Fitness Salonu', desc: 'Modern ekipmanlı spor merkezi' },
+  { icon: Shield, label: '7/24 Güvenlik', desc: 'Kesintisiz profesyonel güvenlik' },
+  { icon: Car, label: 'Kapalı Otopark', desc: 'Güvenli, kapalı araç park alanı' },
+  { icon: Zap, label: 'Jeneratör', desc: 'Kesintisiz elektrik güvencesi' },
+  { icon: MapPin, label: 'Merkezi Konum', desc: 'Taksim ve Nişantaşı\'na yakın' },
+];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#060B14] text-slate-100 font-sans selection:bg-amber-500/30 selection:text-amber-200">
-      {/* ═══════════════════════════════════════════════
-          1. HEADER / NAVBAR
-         ═══════════════════════════════════════════════ */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-[#060B14]/80 backdrop-blur-xl border-b border-white/[0.08] transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-slate-900/90 border border-[#C5A55B]/40 flex items-center justify-center shadow-lg shadow-amber-950/20 group-hover:border-[#C5A55B] transition-all">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-[#C5A55B]">
-                <rect x="9.5" y="7" width="5" height="2.5" />
-                <rect x="6.5" y="11.5" width="11" height="2.5" />
-                <rect x="3.5" y="16" width="17" height="2.5" />
-              </svg>
-            </div>
-            <div className="flex flex-col">
-              <div className="text-lg tracking-widest leading-none font-bold">
-                <span className="text-white">TERRACE</span>
-                <span className="text-[#C5A55B]">FERİ</span>
-              </div>
-              <span className="text-[8px] text-slate-400 font-bold tracking-[0.3em] mt-1">
-                PREMIUM RESIDENCE
-              </span>
-            </div>
-          </Link>
+    <>
+      <Navbar />
+      <main>
+        {/* ─── HERO ─── */}
+        <section
+          style={{
+            position: 'relative',
+            height: '100vh',
+            minHeight: '640px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Background image */}
+          <Image
+            src="/foto/inanlar-terrrace-feri.jpg"
+            alt="TerraceFeri Rezidans"
+            fill
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            priority
+          />
+          {/* Dark overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.85) 100%)',
+            }}
+          />
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
-            <a href="#hakkimizda" className="hover:text-[#C5A55B] transition-colors">Hakkımızda</a>
-            <a href="#ayricaliklar" className="hover:text-[#C5A55B] transition-colors">Ayrıcalıklar</a>
-            <a href="#hizmetler" className="hover:text-[#C5A55B] transition-colors">Hizmetler</a>
-            <a href="#iletisim" className="hover:text-[#C5A55B] transition-colors">İletişim</a>
-          </nav>
-
-          {/* Right CTA */}
-          <div className="flex items-center gap-3">
-            <a
-              href="https://wa.me/905305631781"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl glass-surface border border-emerald-500/30 text-emerald-400 hover:text-white hover:bg-emerald-600/20 text-xs font-semibold transition-all"
+          {/* Content */}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              textAlign: 'center',
+              padding: '0 24px',
+              maxWidth: '900px',
+            }}
+          >
+            <div
+              className="animate-fade-in-up"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 'clamp(9px, 3vw, 11px)',
+                fontWeight: 600,
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                color: '#c9a84c',
+                marginBottom: '20px',
+              }}
             >
-              <MessageSquare className="w-4 h-4" />
-              <span>WhatsApp Danışma</span>
-            </a>
-            
-            <Link
-              href="/admin"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A55B] to-[#9D7E38] hover:from-[#d6b66a] hover:to-[#ae8d42] text-slate-950 font-bold text-xs shadow-lg shadow-amber-950/40 border border-[#e2c785]/50 flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
+              Feriköy, Şişli · İstanbul
+            </div>
+
+            <h1
+              className="animate-fade-in-up delay-100"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 300,
+                fontSize: 'clamp(36px, 10vw, 88px)',
+                lineHeight: 1.08,
+                color: '#f5f5f5',
+                marginBottom: '24px',
+                letterSpacing: '-0.01em',
+              }}
             >
-              <span>Yönetim Girişi (TMM)</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </header>
+              Şişli&apos;nin Kalbinde<br />
+              <em style={{ fontStyle: 'italic', color: '#e8c97a' }}>Modern Yaşam</em>
+            </h1>
 
-      {/* ═══════════════════════════════════════════════
-          2. HERO SECTION
-         ═══════════════════════════════════════════════ */}
-      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden">
-        {/* Glow & Ambient Lights */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[400px] bg-gradient-to-tr from-blue-600/15 via-amber-500/10 to-purple-600/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-amber-500/5 blur-[100px] rounded-full pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.1] text-xs font-medium text-slate-300 mb-8 backdrop-blur-md shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A55B]" />
-            <span>Şişli Feriköy&apos;ün Kalbinde Prestijli Yaşam</span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">
-            Ayrıcalıklı, Konforlu ve <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-white via-slate-200 to-[#C5A55B] bg-clip-text text-transparent">
-              Akıllı Rezidans Yaşamı
-            </span>
-          </h1>
-
-          <p className="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            TerraceFeri, modern mimarisi, 7/24 üst düzey güvenliği, akıllı tesis otomasyonu ve merkezi konumuyla sakinlerine benzersiz bir rezidans deneyimi sunar.
-          </p>
-
-          {/* Action Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/admin"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#C5A55B] to-[#A0823B] hover:from-[#d6b76c] hover:to-[#b09146] text-slate-950 font-extrabold text-sm shadow-xl shadow-amber-950/40 border border-[#e6cb8e]/60 flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+            <p
+              className="animate-fade-in-up delay-200"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 'clamp(14px, 4vw, 17px)',
+                color: 'rgba(255,255,255,0.65)',
+                fontWeight: 300,
+                lineHeight: 1.7,
+                marginBottom: '40px',
+                maxWidth: '520px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
             >
-              <Building2 className="w-5 h-5" />
-              <span>TMM Yönetim Paneline Geç</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <a
-              href="#ayricaliklar"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl glass-surface hover:bg-white/[0.08] text-white text-sm font-semibold border border-white/[0.12] flex items-center justify-center gap-2 transition-all"
-            >
-              <span>Rezidansı Keşfet</span>
-            </a>
-          </div>
-
-          {/* Mini KPI Showcase */}
-          <div className="mt-16 sm:mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.08] text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-white">88</p>
-              <span className="text-xs text-slate-400 mt-1 block">Lüks Daire</span>
-            </div>
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.08] text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-[#C5A55B]">22</p>
-              <span className="text-xs text-slate-400 mt-1 block">Sosyal & Tesis Alanı</span>
-            </div>
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.08] text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-blue-400">7/24</p>
-              <span className="text-xs text-slate-400 mt-1 block">Güvenlik & Resepsiyon</span>
-            </div>
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.08] text-center">
-              <p className="text-3xl sm:text-4xl font-extrabold text-emerald-400">%100</p>
-              <span className="text-xs text-slate-400 mt-1 block">Akıllı Tesis Yönetimi</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          3. FEATURES / AYRICALIKLAR
-         ═══════════════════════════════════════════════ */}
-      <section id="ayricaliklar" className="py-20 relative border-t border-white/[0.06] bg-[#080E1A]/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs uppercase font-bold tracking-[0.25em] text-[#C5A55B] mb-2">
-              AYRICALIKLAR
-            </h2>
-            <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Modern Yaşamın Tüm Konforu Bir Arada
+              Feriköy&apos;ün prestijli noktasında, İstanbul&apos;un merkezinde yaşamanın ayrıcalığını keşfedin.
             </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-amber-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[#C5A55B] mb-6 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">7/24 İleri Düzey Güvenlik</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Rezidans giriş ve çevrelerinde 24 saat kesintisiz profesyonel güvenlik ekibi, CCTV kamera izleme ve kontrollü geçiş sistemi.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-blue-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
-                <Car className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Kapalı Otopark & Plaka Tanıma</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Her daireye özel kapalı otopark alanı ve otomatik plaka tanıma sistemi ile güvenli, hızlı ve konforlu araç girişi.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-emerald-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Akıllı Sayaç & Enerji Takibi</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Elektrik, su ve kalorimetre tüketimlerinin dijital ortamda şeffaf ve anlık takibi ile maksimum enerji verimliliği.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-purple-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform">
-                <Activity className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Profesyonel Teknik Servis</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Tesis bünyesindeki uzman teknik personel ile periyodik asansör, jeneratör, hidrofor bakımları ve hızlı arıza müdahalesi.
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-cyan-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Sosyal Tesis & Yaşam Alanları</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Fitness merkezi, dinlenme salonları, peyzaj bahçeleri ve sakinlerimizin sosyal ihtiyaçlarına yönelik özel alanlar.
-              </p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="p-8 glass-card rounded-3xl border border-white/[0.08] hover:border-rose-500/30 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-6 group-hover:scale-110 transition-transform">
-                <MessageSquare className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Dijital Asistan & WhatsApp Destek</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Sakinlerimizin arıza bildirimleri, duyurular ve yönetimle iletişimini kolaylaştıran 7/24 akıllı asistan altyapısı.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          4. MANAGEMENT CTA BANNER
-         ═══════════════════════════════════════════════ */}
-      <section id="hakkimizda" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="p-8 sm:p-14 glass-card rounded-3xl border border-[#C5A55B]/30 relative overflow-hidden bg-gradient-to-br from-[#0c1424] to-[#060B14]">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#C5A55B]/10 blur-3xl rounded-full pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div className="max-w-2xl text-center lg:text-left">
-                <span className="text-xs uppercase tracking-widest text-[#C5A55B] font-bold">
-                  TERRACEFERİ YÖNETİM PORTALI
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">
-                  Tesis ve Rezidans Operasyonları
-                </h2>
-                <p className="mt-3 text-slate-300 text-sm leading-relaxed">
-                  Yönetim kurulu, teknik personel ve idari ekipler için hazırlanmış kapsamlı TMM (Tesis Yönetim Modülü) sistemiyle tüm operasyonlar anlık olarak yönetilmektedir.
-                </p>
-              </div>
-
-              <Link
-                href="/admin"
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#C5A55B] to-[#9E7F3A] hover:from-[#d8b96e] hover:to-[#b3944a] text-slate-950 font-bold text-sm shadow-xl shadow-amber-950/40 border border-[#f0d599]/60 flex items-center gap-3 shrink-0 transition-all transform hover:-translate-y-0.5"
-              >
-                <span>Yönetici Paneline Giriş Yap</span>
-                <ArrowRight className="w-4 h-4" />
+            <div
+              className="animate-fade-in-up delay-300"
+              style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}
+            >
+              <Link href="/galeri" className="btn-gold">
+                Galeriyi Keşfet <ArrowRight size={16} />
+              </Link>
+              <Link href="/iletisim" className="btn-outline">
+                Bize Ulaşın
               </Link>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ═══════════════════════════════════════════════
-          5. CONTACT / İLETİŞİM
-         ═══════════════════════════════════════════════ */}
-      <section id="iletisim" className="py-20 border-t border-white/[0.06] bg-[#070C16]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.06] flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-amber-500/10 text-[#C5A55B] border border-amber-500/20 shrink-0">
-                <MapPin className="w-5 h-5" />
+          {/* Scroll indicator */}
+          <div
+            className="scroll-indicator"
+            style={{
+              position: 'absolute',
+              bottom: '36px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.4)' }}>
+              KEŞFET
+            </span>
+            <ChevronDown size={18} style={{ color: '#c9a84c' }} />
+          </div>
+        </section>
+
+        {/* ─── STATS ─── */}
+        <section style={{ background: '#0d0d0d', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div
+            className="stats-grid"
+            style={{
+              maxWidth: '1280px',
+              margin: '0 auto',
+              padding: '0 24px',
+              display: 'grid',
+            }}
+          >
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '40px 24px',
+                  textAlign: 'center',
+                  borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                }}
+              >
+                <div className="stat-number">{stat.value}</div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#6a6a6a',
+                    marginTop: '6px',
+                  }}
+                >
+                  {stat.label}
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">Rezidans Adresi</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Feriköy Mahallesi, Şişli / İstanbul, Türkiye
-                </p>
-              </div>
+            ))}
+          </div>
+          <style>{`
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            @media (max-width: 640px) {
+              .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            }
+            @media (max-width: 400px) {
+              .stats-grid { grid-template-columns: 1fr !important; }
+            }
+          `}</style>
+        </section>
+
+        {/* ─── FEATURES ─── */}
+        <section style={{ padding: 'clamp(64px, 8vw, 120px) 24px', background: '#0a0a0a' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div className="section-label" style={{ marginBottom: '16px' }}>Olanaklar</div>
+              <h2 className="section-title" style={{ marginBottom: '16px' }}>
+                Lüks Yaşamın Her Detayı
+              </h2>
+              <div className="gold-divider" style={{ margin: '20px auto' }} />
+              <p className="section-subtitle" style={{ maxWidth: '520px', margin: '0 auto' }}>
+                TerraceFeri Rezidans&apos;ta, şehir merkezinde yaşarken ihtiyacınız olan tüm sosyal alanlar kapınızın önünde.
+              </p>
             </div>
 
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.06] flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
-                <PhoneCall className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">Yönetim & Danışma</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  +90 530 563 17 81 <br />
-                  admin@terraceferi.com
-                </p>
-              </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '1px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              {features.map((feature, i) => {
+                const Icon = feature.icon;
+                return (
+                  <div
+                    key={i}
+                    className="amenity-card glass glass-hover"
+                    style={{ borderRadius: 0 }}
+                  >
+                    <div className="amenity-icon" style={{ marginBottom: '16px', display: 'flex' }}>
+                      <Icon size={32} style={{ color: '#c9a84c' }} />
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: '20px',
+                        fontWeight: 400,
+                        color: '#f5f5f5',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      {feature.label}
+                    </h3>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#6a6a6a', fontWeight: 300 }}>
+                      {feature.desc}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="p-6 glass-card rounded-2xl border border-white/[0.06] flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">Çalışma Saatleri</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Resepsiyon & Güvenlik: 7/24 Kesintisiz <br />
-                  Yönetim Ofisi: Hafta İçi 09:00 - 18:00
-                </p>
-              </div>
+            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+              <Link href="/sosyal-alanlar" className="btn-outline">
+                Tüm Sosyal Alanları Gör <ArrowRight size={15} />
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══════════════════════════════════════════════
-          6. FOOTER
-         ═══════════════════════════════════════════════ */}
-      <footer className="py-10 border-t border-white/[0.08] bg-[#040810]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold text-slate-300">TerraceFeri Premium Residence</span>
-            <span>•</span>
-            <span>Tüm hakları saklıdır © 2026</span>
-          </div>
+        {/* ─── GALLERY PREVIEW ─── */}
+        <section style={{ padding: 'clamp(64px, 8vw, 120px) 24px', background: '#080808' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+              <div>
+                <div className="section-label" style={{ marginBottom: '12px' }}>Galeri</div>
+                <h2 className="section-title">Yaşam Alanları</h2>
+              </div>
+              <Link href="/galeri" className="btn-outline" style={{ whiteSpace: 'nowrap' }}>
+                Tüm Galeri <ArrowRight size={15} />
+              </Link>
+            </div>
 
-          <div className="flex items-center space-x-6">
-            <Link href="/admin" className="text-slate-400 hover:text-[#C5A55B] transition-colors">
-              Yönetim Paneli (TMM)
-            </Link>
-            <Link href="/login" className="text-slate-400 hover:text-white transition-colors">
-              Giriş Yap
-            </Link>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '2fr 1fr',
+                gridTemplateRows: 'auto auto',
+                gap: '8px',
+              }}
+            >
+              {/* Large image */}
+              <div
+                className="gallery-item"
+                style={{
+                  gridRow: '1 / 3',
+                  height: '540px',
+                  borderRadius: '2px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Image src="/foto/rpvsis6vmkky1dd5mqrq.jpg" alt="Lobi ve Resepsiyon" fill style={{ objectFit: 'cover' }} />
+                <div className="gallery-overlay">
+                  <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', color: '#f5f5f5', opacity: 0 }}>
+                    Lobi
+                  </span>
+                </div>
+                <div style={{ position: 'absolute', bottom: '16px', left: '20px', zIndex: 2 }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>
+                    Lobi & Resepsiyon
+                  </span>
+                </div>
+              </div>
+
+              {/* Small images */}
+              {[
+                { src: '/foto/xcg3kxe9fxegfiznkxyy.jpg', label: 'Kapalı Havuz' },
+                { src: '/foto/ewwhjdwhwch85tac74bt.jpg', label: 'Sauna & Spa' },
+              ].map((img, i) => (
+                <div
+                  key={i}
+                  className="gallery-item"
+                  style={{
+                    height: '264px',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}
+                >
+                  <Image src={img.src} alt={img.label} fill style={{ objectFit: 'cover' }} />
+                  <div className="gallery-overlay" />
+                  <div style={{ position: 'absolute', bottom: '16px', left: '20px', zIndex: 2 }}>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 500, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>
+                      {img.label}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+          <style>{`
+            @media (max-width: 640px) {
+              .gallery-grid { grid-template-columns: 1fr !important; }
+            }
+          `}</style>
+        </section>
+
+        {/* ─── LOCATION CTA ─── */}
+        <section style={{ position: 'relative', overflow: 'hidden', padding: 'clamp(64px, 8vw, 120px) 24px' }}>
+          <Image
+            src="/foto/ewwhjdwhwch85tac74bt.jpg"
+            alt="İstanbul"
+            fill
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%)',
+            }}
+          />
+          <div style={{ position: 'relative', zIndex: 2, maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ maxWidth: '600px' }}>
+              <div className="section-label" style={{ marginBottom: '20px' }}>Konum</div>
+              <h2 className="section-title" style={{ marginBottom: '20px' }}>
+                İstanbul&apos;un Tam Merkezinde
+              </h2>
+              <div className="gold-divider" style={{ marginBottom: '24px' }} />
+              <p className="section-subtitle" style={{ marginBottom: '32px' }}>
+                Taksim&apos;e 5 dakika, Nişantaşı&apos;na yürüme mesafesinde, Cevahir AVM&apos;ye 5 dakika.
+                Şehrin her noktasına kolayca ulaşın.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '36px' }}>
+                {['Taksim — ~5 dk', 'Nişantaşı — ~5 dk', 'Cevahir AVM — ~5 dk', 'Mecidiyeköy — ~5 dk'].map((item) => (
+                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '6px', height: '6px', background: '#c9a84c', borderRadius: '50%', flexShrink: 0 }} />
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '14px', color: 'rgba(255,255,255,0.7)', fontWeight: 300 }}>
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/konum" className="btn-gold">
+                Haritada Görüntüle <MapPin size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── CONTACT CTA ─── */}
+        <section style={{ padding: 'clamp(64px, 8vw, 100px) 24px', background: '#0d0d0d', textAlign: 'center' }}>
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div className="section-label" style={{ marginBottom: '16px' }}>İletişim</div>
+            <h2 className="section-title" style={{ marginBottom: '20px' }}>
+              Bizimle İletişime Geçin
+            </h2>
+            <div className="gold-divider" style={{ margin: '0 auto 24px' }} />
+            <p className="section-subtitle" style={{ marginBottom: '36px' }}>
+              Sorularınız için bize ulaşabilir, yönetim ofisimizi ziyaret edebilirsiniz.
+            </p>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/iletisim" className="btn-gold">
+                İletişim Formu <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }

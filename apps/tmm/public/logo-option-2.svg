@@ -1,0 +1,21 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Option 2: Elegant Crest Monogram -->
+  <g id="logo-crest">
+    <!-- Diamond/Square Frame -->
+    <rect x="15" y="15" width="50" height="50" rx="2" fill="#0d0d0d" stroke="url(#gold-grad-2)" stroke-width="2"/>
+    <rect x="19" y="19" width="42" height="42" fill="none" stroke="url(#gold-grad-2)" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>
+    <!-- TF Serif Initials -->
+    <text x="40" y="48" font-family="'Cormorant Garamond', serif" font-size="24" font-weight="600" fill="url(#gold-grad-2)" text-anchor="middle">TF</text>
+  </g>
+  <!-- Typography -->
+  <text x="80" y="40" font-family="'Cormorant Garamond', serif, Georgia" font-size="25" font-weight="400" fill="#ffffff" letter-spacing="2">TERRACE FERİ</text>
+  <line x1="80" y1="47" x2="270" y2="47" stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+  <text x="80" y="60" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#c9a84c" letter-spacing="5">ŞİŞLİ · İSTANBUL</text>
+  <defs>
+    <linearGradient id="gold-grad-2" x1="15" y1="15" x2="65" y2="65" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3E5AB" />
+      <stop offset="0.5" stop-color="#C9A84C" />
+      <stop offset="1" stop-color="#8A6D23" />
+    </linearGradient>
+  </defs>
+</svg>

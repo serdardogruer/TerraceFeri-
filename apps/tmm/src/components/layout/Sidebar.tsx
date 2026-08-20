@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Home, Users, Map, Zap, Settings, 
-  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, User, LogOut, Send
+  Building, ChevronLeft, ChevronRight, GripVertical, Cpu, AlertTriangle, Briefcase, UserCheck, User, LogOut, Send,
+  Smartphone, Sparkles, Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -38,6 +39,8 @@ const defaultMenus: MenuItem[] = [
   { id: '8', name: 'Firmalar', icon: Briefcase, href: '/admin/settings/companies', moduleKey: 'companies' },
   { id: '9', name: 'Yönetim Masası', icon: Send, href: '/admin/management-requests', moduleKey: 'management' },
   { id: '10', name: 'Personel & PDKS', icon: UserCheck, href: '/admin/personnel', moduleKey: 'personnel' },
+  { id: '11', name: 'Personel Mobil', icon: Shield, href: '/personel', moduleKey: 'personnel_mobile' },
+  { id: '12', name: 'Sakin Portalı', icon: Smartphone, href: '/sakin', moduleKey: 'resident_mobile' },
 ];
 
 const settingsSubItems = [

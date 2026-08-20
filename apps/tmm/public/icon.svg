@@ -1,0 +1,15 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon Option 3: Architectural Terrace Layer Icon -->
+  <rect width="64" height="64" rx="14" fill="#0d0d0d"/>
+  <g transform="translate(6, 4)">
+    <path d="M10 44 H42 V38 H10 Z" fill="url(#gold-grad-f3)" />
+    <path d="M15 35 H37 V29 H15 Z" fill="url(#gold-grad-f3)" opacity="0.85" />
+    <path d="M20 26 H32 V17 H20 Z" fill="url(#gold-grad-f3)" opacity="0.7" />
+  </g>
+  <defs>
+    <linearGradient id="gold-grad-f3" x1="10" y1="17" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8C97A" />
+      <stop offset="1" stop-color="#C9A84C" />
+    </linearGradient>
+  </defs>
+</svg>

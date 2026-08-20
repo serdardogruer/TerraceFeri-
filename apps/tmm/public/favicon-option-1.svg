@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon Option 1: Golden Monogram Square -->
+  <rect width="64" height="64" rx="14" fill="#0d0d0d"/>
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#gold-grad-f1)" stroke-width="1.5" opacity="0.4"/>
+  <rect x="8" y="8" width="48" height="48" rx="8" fill="url(#gold-grad-f1)"/>
+  <path d="M20 20H44V26H35V44H29V26H20V20Z" fill="#0a0a0a"/>
+  <path d="M35 29H42V34H35V29Z" fill="#0a0a0a"/>
+  <path d="M35 37H40V42H35V37Z" fill="#0a0a0a"/>
+  <defs>
+    <linearGradient id="gold-grad-f1" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3E5AB" />
+      <stop offset="0.5" stop-color="#C9A84C" />
+      <stop offset="1" stop-color="#9A7B2C" />
+    </linearGradient>
+  </defs>
+</svg>

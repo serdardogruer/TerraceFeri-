@@ -21,6 +21,8 @@ export const ALL_SYSTEM_MODULES: ModuleDefinition[] = [
   { key: 'meters', label: 'Sayaç Takibi & Tüketim', description: 'Elektrik, su, doğalgaz endeks girişleri', category: 'operations' },
   { key: 'management', label: 'Yönetim Masası & Talepler', description: 'Yönetim talepleri ve resmi kayıtlar', category: 'operations' },
   { key: 'personnel', label: 'Personel & PDKS', description: 'Çalışanlar, vardiya ve QR devriye', category: 'operations' },
+  { key: 'personnel_mobile', label: 'Personel Mobil Core', description: 'Temizlik ve Güvenlik saha personeli mobil arayüzü', category: 'operations' },
+  { key: 'resident_mobile', label: 'Sakin Mobil Core', description: 'Arıza/Talep, Duyurular, Randevu ve Mesajlar mobil arayüzü', category: 'operations' },
   { key: 'companies', label: 'Anlaşmalı Firmalar', description: 'Hizmet sağlayıcı ve tedarikçi firmalar', category: 'admin' },
   { key: 'users', label: 'Kullanıcı Yönetimi', description: 'Sistem kullanıcıları ve rol/yetki atamaları', category: 'admin' },
   { key: 'settings', label: 'Sistem Ayarları', description: 'Konum, Wi-Fi ve genel yapılandırma', category: 'admin' },
