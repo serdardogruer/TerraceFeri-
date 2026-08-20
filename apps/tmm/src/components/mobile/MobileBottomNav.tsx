@@ -22,7 +22,7 @@ interface MobileBottomNavProps {
   type?: 'sakin' | 'personel' | 'temizlik' | 'guvenlik';
 }
 
-export function MobileBottomNav({ type }: MobileBottomNavProps) {
+function MobileBottomNavInner({ type }: MobileBottomNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab');
@@ -109,3 +109,12 @@ export function MobileBottomNav({ type }: MobileBottomNavProps) {
     </nav>
   );
 }
+
+export function MobileBottomNav(props: MobileBottomNavProps) {
+  return (
+    <React.Suspense fallback={null}>
+      <MobileBottomNavInner {...props} />
+    </React.Suspense>
+  );
+}
+
