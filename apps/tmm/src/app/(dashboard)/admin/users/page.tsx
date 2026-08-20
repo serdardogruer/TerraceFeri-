@@ -5,8 +5,9 @@ import {
   Users, UserPlus, Shield, CheckCircle2, XCircle, 
   Edit3, Trash2, Key, Lock, Mail, UserCheck, 
   Search, ShieldAlert, Sparkles, Check, AlertTriangle, Crown,
-  PlusCircle, FileSpreadsheet, Ban, ShieldCheck, Eye, ToggleLeft, ToggleRight
+  PlusCircle, FileSpreadsheet, Ban, ShieldCheck, Eye, EyeOff, ToggleLeft, ToggleRight
 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 import { 
   parseUserPermissions, 
@@ -144,6 +145,7 @@ export default function UsersPage() {
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModalPassword, setShowModalPassword] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -166,6 +168,7 @@ export default function UsersPage() {
 
   const openAddModal = () => {
     setEditingUser(null);
+    setShowModalPassword(false);
     setFormData({
       name: '',
       email: '',
@@ -182,7 +185,9 @@ export default function UsersPage() {
   const openEditModal = (user: UserItem) => {
     const isSuper = user.email === 'serdardogruer@gmail.com' || user.role === 'SUPER_ADMIN';
     setEditingUser(user);
+    setShowModalPassword(false);
     const parsed = parseUserPermissions(user.permissions, isSuper);
+
     
     // Ensure all modules are populated in modulePermissions
     const completeModulePerms: Record<string, ModulePermission> = {};
@@ -667,15 +672,26 @@ export default function UsersPage() {
                   <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     {editingUser ? 'Şifre (Değişmeyecekse Boş Bırakın)' : 'Giriş Şifresi *'}
                   </label>
-                  <input
-                    type="password"
-                    required={!editingUser}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder={editingUser ? '••••••••' : 'Şifre girin...'}
-                    className="w-full px-3 py-2 bg-[#070A11] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500/50"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showModalPassword ? 'text' : 'password'}
+                      required={!editingUser}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder={editingUser ? '••••••••' : 'Şifre girin...'}
+                      className="w-full pl-3 pr-9 py-2 bg-[#070A11] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowModalPassword(!showModalPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 p-1 rounded transition-colors cursor-pointer"
+                      title={showModalPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}
+                    >
+                      {showModalPassword ? <EyeOff className="w-3.5 h-3.5 text-indigo-400" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
+
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">

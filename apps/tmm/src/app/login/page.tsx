@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ApiClient } from '@/lib/api-client';
-import { Shield, Settings, Users, KeyRound, Globe, Sun, Loader2, CheckCircle2 } from 'lucide-react';
+import { Shield, Settings, Users, KeyRound, Globe, Sun, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -11,9 +11,11 @@ function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,15 +85,26 @@ function LoginForm() {
             <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
               Şifre
             </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#050914] border border-slate-800 focus:border-[#F97316] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 transition-all font-medium"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-[#050914] border border-slate-800 focus:border-[#F97316] rounded-xl pl-4 pr-11 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 transition-all font-medium"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 p-1.5 rounded-lg transition-colors cursor-pointer"
+                title={showPassword ? 'Şifreyi Gizle' : 'Şifreyi Göster'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4 text-orange-400" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
+
 
           {error && (
             <div className="text-red-400 text-xs font-semibold bg-red-950/40 border border-red-500/30 rounded-xl p-3.5 flex items-start space-x-2">
