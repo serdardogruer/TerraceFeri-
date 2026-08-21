@@ -65,7 +65,8 @@ export async function POST(req: NextRequest) {
     const todayEnd = new Date(now);
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Fetch active records from database - SADECE BUGÜNÜN KAYITLARI
+    // Fetch active records from database - SADECE BUGÜNÜN TEKNİK KAYITLARI
+    const TECHNICAL_RECORD_TYPES = ['ARIZA', 'GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'];
     let faults: any[] = [];
     try {
       faults = await faultDb.faultRecord.findMany({
@@ -73,7 +74,9 @@ export async function POST(req: NextRequest) {
           faultDate: {
             gte: todayStart,
             lte: todayEnd
-          }
+          },
+          deletedAt: null,
+          recordType: { in: TECHNICAL_RECORD_TYPES }
         },
         orderBy: { faultDate: 'asc' }
       });
@@ -86,7 +89,7 @@ export async function POST(req: NextRequest) {
     const dateISO = formatDateISO(now);
 
     const arizaFaults = faults.filter(f => f.recordType === 'ARIZA');
-    const rutinFaults = faults.filter(f => f.recordType !== 'ARIZA');
+    const rutinFaults = faults.filter(f => ['GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'].includes(f.recordType));
 
     const arizaRowsHtml = arizaFaults.length > 0 ? arizaFaults.map((f, i) => {
       const isCompleted = f.status === 'Tamamlandı';

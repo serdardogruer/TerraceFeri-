@@ -349,9 +349,9 @@ export default function FaultsPage() {
   };
 
   const generateReport = async (dateLabel: string, items: FaultRecord[]) => {
-    const activeItems = items.filter(item => item.recordType !== 'AYLIK_RUTIN');
+    const activeItems = items.filter(item => ['ARIZA', 'GUNLUK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'].includes(item.recordType));
     const arizaItems = activeItems.filter(i => i.recordType === 'ARIZA');
-    const rutinItems = activeItems.filter(i => i.recordType !== 'ARIZA');
+    const rutinItems = activeItems.filter(i => ['GUNLUK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'].includes(i.recordType));
 
     setReportItems(activeItems);
     setReportCode(getRandomReportCode());
@@ -400,6 +400,9 @@ ${rutinItems.length > 0
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const TECHNICAL_RECORD_TYPES = ['ARIZA', 'GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'];
+    const technicalFaults = faults.filter(f => TECHNICAL_RECORD_TYPES.includes(f.recordType));
+
     const dateGroups: Record<string, {
       items: FaultRecord[],
       counts: { ariza: number, gunluk: number, aylik: number, genel: number },
@@ -408,7 +411,7 @@ ${rutinItems.length > 0
       dayOfMonth: number
     }> = {};
 
-    faults.forEach(fault => {
+    technicalFaults.forEach(fault => {
 
 
       const faultDate = new Date(fault.faultDate);
@@ -913,7 +916,7 @@ ${rutinItems.length > 0
       {/* RAPOR GÖNDER MODALI (PRINTABLE) */}
       {isReportModalOpen && (() => {
         const arizaItems = reportItems.filter(item => item.recordType === 'ARIZA');
-        const rutinItems = reportItems.filter(item => item.recordType !== 'ARIZA');
+        const rutinItems = reportItems.filter(item => ['GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'].includes(item.recordType));
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#05070a]/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsReportModalOpen(false)}>

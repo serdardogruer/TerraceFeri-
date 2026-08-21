@@ -164,11 +164,12 @@ export async function GET(req: NextRequest) {
     // 2. Bugüne ait şablon kopyalarını oluştur (idempotent)
     await ensureDailyRoutineCopies();
 
-    // 3. Sadece görünür kayıtları döndür (SABLON'lar hariç)
+    // 3. Sadece teknik kayıtları döndür (Temizlik, Rezervasyon, SABLON'lar hariç)
+    const TECHNICAL_RECORD_TYPES = ['ARIZA', 'GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'];
     const faults = await faultDb.faultRecord.findMany({
       where: {
         deletedAt: null,
-        recordType: { not: 'GUNLUK_RUTIN_SABLON' },
+        recordType: { in: TECHNICAL_RECORD_TYPES },
         ...(equipmentId ? { equipmentId } : {})
       },
       orderBy: { faultDate: 'desc' }

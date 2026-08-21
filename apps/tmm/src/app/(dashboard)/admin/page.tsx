@@ -30,16 +30,16 @@ export default async function AdminDashboardPage() {
   try {
     apartmentCount = await apartmentDb.apartment.count({ where: { deletedAt: null } }).catch(() => 88);
     areaCount = await areaDb.area.count({ where: { deletedAt: null } }).catch(() => 22);
-    equipmentCount = await equipmentDb.equipment.count({ where: { deletedAt: null } }).catch(() => 144);
-    faultCount = await faultDb.faultRecord.count({ where: { deletedAt: null } }).catch(() => 181);
+    const TECHNICAL_RECORD_TYPES = ['ARIZA', 'GUNLUK_RUTIN', 'AYLIK_RUTIN', 'GENEL_ISLEM', 'RUTIN_GOREV'];
+    faultCount = await faultDb.faultRecord.count({ where: { deletedAt: null, recordType: { in: TECHNICAL_RECORD_TYPES } } }).catch(() => 181);
     pendingFaultCount = await faultDb.faultRecord.count({ 
-      where: { deletedAt: null, status: { in: ['Pending', 'Bekliyor', 'İşlemde'] } } 
+      where: { deletedAt: null, recordType: { in: TECHNICAL_RECORD_TYPES }, status: { in: ['Pending', 'Bekliyor', 'İşlemde'] } } 
     }).catch(() => 12);
     companyCount = await companyDb.company.count({ where: { deletedAt: null } }).catch(() => 11);
     personnelCount = await prismaPersonnel.personnel.count({ where: { deletedAt: null } }).catch(() => 8);
 
     recentFaults = await faultDb.faultRecord.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, recordType: { in: TECHNICAL_RECORD_TYPES } },
       orderBy: { createdAt: 'desc' },
       take: 6,
     }).catch(() => []);
